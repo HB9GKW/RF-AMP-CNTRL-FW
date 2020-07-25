@@ -11,6 +11,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "i2cmaster.h"
+// #include "mcp23017.h"
 #include "i2clcd.h"
 
 // Signal mapping for port D
@@ -57,7 +58,7 @@ const char string_flash8[] PROGMEM = "HSWR";
 const char string_flash9[] PROGMEM = "FWD";
 const char string_flash10[] PROGMEM = "REF";
 const char string_flash11[] PROGMEM = "SWR";
-const char bar1[] PROGMEM = {0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F};
+// const char bar1[] PROGMEM = {0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F};
 
 void gpio_setup(void) {
 	// Data Direction Register Port D: GATE_ALC_EN / VDD_EN / RF_SW1_EN / RF_SW2_EN -> output

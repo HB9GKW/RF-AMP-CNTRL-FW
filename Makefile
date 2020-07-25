@@ -8,7 +8,7 @@
 MCU = atmega8
 FORMAT = ihex
 TARGET = main
-SRC = $(TARGET).c twimaster.c i2clcd.c
+SRC = $(TARGET).c twimaster.c i2clcd.c mcp23017.c
 ASRC =
 OPT = s
 
