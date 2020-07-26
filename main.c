@@ -11,7 +11,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "i2cmaster.h"
-// #include "mcp23017.h"
+#include "mcp23017.h"
 #include "i2clcd.h"
 
 // Signal mapping for port D
@@ -47,7 +47,7 @@ volatile uint8_t rx_req_flag = 0;
 volatile uint8_t read_fault_req_flag = 0;
 
 // Define Display Strings and Characters in PROGMEM
-const char string_flash1[] PROGMEM = "RF-AMP-CNTRL V1";
+const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";
 const char string_flash2[] PROGMEM = "*** HB9GKW ***";
 const char string_flash3[] PROGMEM = "OL";
 const char string_flash4[] PROGMEM = "IDD";
@@ -96,7 +96,7 @@ void display_init(void) {
 	lcd_command(LCD_CLEAR);
 }
 
-uint16_t ADC_read( uint8_t channel ) {
+uint16_t ADC_read(uint8_t channel) {
 	ADMUX = (ADMUX & ~(0x1F)) | (channel & 0x1F);
 	ADCSRA |= (1 << ADSC);
 	while (ADCSRA & (1 << ADSC) ) {}
@@ -185,15 +185,18 @@ int check_state(int dm, int disp) {
 int main(void) {
 	// GPIO Setup
 	gpio_setup();
-	// Enable global interrupts
-	sei();
 	// I2C init
 	i2c_init();
 	// LCD Display init
 	display_init();
+	// MCP23017 init
+	mcp23017_init();
 	// ADC init
 	ADC_init();
+	// Display mode init
 	uint8_t dm = 0, disp = 0;
+	// Enable global interrupts
+	sei();
 	// Main loop
 	for (;;) {
 	// OPR mode
