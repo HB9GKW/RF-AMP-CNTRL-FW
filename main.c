@@ -153,7 +153,7 @@ const uint8_t g1 = 10;
 void read_temp(void) {
 	//clean(buffer);
 	adcval = ADC_read(1)-off1;		// subtract offset
-	if (adcval>0) buffer[0]=43; 		// adds '+' as 1st char
+	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
 	else buffer[0]=45; 			// adds '-' as 1st char
 	adcval=abs(adcval);			// change to abs value (modulo)
 	itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
@@ -200,35 +200,23 @@ int main(void) {
 	// Main loop
 	for (;;) {
 	// OPR mode
-	while ( !(PINB & (1 << OPR)) ) {
-		// Switch on VDD if Fault is cleared
-		if ( !(PORTD & (1 << VDD_EN)) && !(PINB & (1 << FAULT)) ) {
-			PORTD |= (1 << VDD_EN);
-		}
-		if (rx_req_flag == 1) {
-			sequence_off();
-			rx_req_flag = 0;
-		}
-		if (tx_req_flag == 1) {
-			sequence_on();
-			tx_req_flag = 0;
-		}
-		// Clear FAULT if Reset is pressed and no ILK is pending
-		if ( (PINB & (1 << FAULT)) && (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
-			PORTB &= ~(1 << FAULT);
+	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
+		// Switch on VDD
+		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
+		// read ADCs and update Display
+		if ( (PINB & (1 << ON_AIR)) ) { 
+			// read & display temp 1 + 2, IDD, VDD
 		}
 	}
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
 	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
 	// Standbye mode
-	while (PINB & (1 << OPR)) {
+	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
 		// Clear FAULT if Reset is pressed and no ILK is pending
-		if ( (PINB & (1 << FAULT)) && (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
-			PORTB &= ~(1 << FAULT);
-		}
+		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) PORTB &= ~(1 << FAULT);
 	read_temp();
-	check_state(dm, disp);
+	// check_state(dm, disp);
 	_delay_ms(100);
 	}
 	}
@@ -247,13 +235,7 @@ ISR (INT0_vect) {
 
 ISR (INT1_vect) {
 	// Interrupt Service Routine at any change of PTT
-	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) {
-		tx_req_flag = 1;
-		rx_req_flag = 0;
-	}
-	else {
-		rx_req_flag = 1;
-		tx_req_flag = 0;
-	}
+	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();	
+	else sequence_off();
 }
 
