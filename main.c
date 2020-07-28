@@ -10,55 +10,10 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include "config.h"
 #include "i2cmaster.h"
 #include "mcp23017.h"
 #include "i2clcd.h"
-
-// Signal mapping for port D
-#define RF_SW1_ON PD0
-#define RF_SW2_ON PD1
-#define ILK PD2
-#define PTT PD3
-#define GATE_ALC_EN PD4
-#define VDD_EN PD5
-#define RF_SW1_EN PD6
-#define RF_SW2_EN PD7
-
-// Signal mapping for port B
-#define OPR PB0
-#define RESET_ILK PB1
-#define DISPLAY PB2
-#define MOSI_FAN PB3
-#define MISO_RF_INHIBIT PB4
-#define SCK_SOFT_ILK PB5
-#define ON_AIR PB6
-#define FAULT PB7
-
-// Signal mapping for port C
-#define TEMP1_MON PC0
-#define TEMP2_MON PC1
-#define VDD_MON PC2
-#define IDD_MON PC3
-#define FWD_MON ADC6
-#define REF_MON ADC7
-
-volatile uint8_t tx_req_flag = 0;
-volatile uint8_t rx_req_flag = 0;
-volatile uint8_t read_fault_req_flag = 0;
-
-// Define Display Strings and Characters in PROGMEM
-const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";
-const char string_flash2[] PROGMEM = "*** HB9GKW ***";
-const char string_flash3[] PROGMEM = "OL";
-const char string_flash4[] PROGMEM = "IDD";
-const char string_flash5[] PROGMEM = "VDD";
-const char string_flash6[] PROGMEM = "T1";
-const char string_flash7[] PROGMEM = "T2";
-const char string_flash8[] PROGMEM = "HSWR";
-const char string_flash9[] PROGMEM = "FWD";
-const char string_flash10[] PROGMEM = "REF";
-const char string_flash11[] PROGMEM = "SWR";
-// const char bar1[] PROGMEM = {0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F};
 
 void gpio_setup(void) {
 	// Data Direction Register Port D: GATE_ALC_EN / VDD_EN / RF_SW1_EN / RF_SW2_EN -> output
@@ -80,8 +35,7 @@ void ADC_init(void) {
 	ADCSRA = (1 << ADPS2) | (0 << ADPS1) | (1 << ADPS0);
 	ADCSRA |= (1 << ADEN);
 	ADCSRA |= (1 << ADSC);
-	while (ADCSRA & (1 << ADSC) ) {
-	}
+	while (ADCSRA & (1 << ADSC) ) {}
 	(void) ADCW;
 }
 
@@ -137,50 +91,8 @@ void clean(char *var) {
 	}
 }
 
-// Buffer for Display
-unsigned char buffer[6] = {'\0'};
-// cache for integer calculation
-char cache_i[3];
-// cache for floating number calculation
-char cache_f[1];
-// ADC value
-int16_t adcval;
-// Temp offset
-const uint8_t off1 = 100;
-// Temp gain
-const uint8_t g1 = 10;
-// Read ADC and print to Display
-void read_temp(void) {
-	//clean(buffer);
-	adcval = ADC_read(1)-off1;		// subtract offset
-	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
-	else buffer[0]=45; 			// adds '-' as 1st char
-	adcval=abs(adcval);			// change to abs value (modulo)
-	itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
-	if ((adcval/g1) < 10) {
-		buffer[1] = 32; 		// insert space as 2nd char
-		buffer[2] = cache_i[0];		// put cache_i as 3rd char
-	}
-	else {					// value > 10
-		buffer[1] = cache_i[0];		// put cache_i[0] as 2nd char
-		buffer[2] = cache_i[1];		// put cache_i[1] as 3rd char
-	}
-	itoa((10*(adcval%g1)/g1), cache_f, 10); // extract decimal place
-	buffer[3] = 46;				// put '.' as 4th char
-	buffer[4] = cache_f[0];			// put cache_f[0] as 5th char
-	buffer[5] = '\0';
-	lcd_printlc(2, 4, buffer);		// print buffer string to lcd
-}
-
-
-int check_state(int dm, int disp) {
-	if ( (PINB & (1 << PB2)) && (dm == 0) ) {
-		dm = 1; disp++;
-		if (disp > 2) disp = 0;
-		}
-	else dm = 0;
-	return disp;
-}
+int check_state(int dm, int disp);
+void read_temp(unsigned char *buffer[6]);
 
 int main(void) {
 	// GPIO Setup
@@ -213,11 +125,15 @@ int main(void) {
 	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
 	// Standbye mode
 	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
+		read_temp();
+		check_state(dm, disp);
+		_delay_ms(100);
+	}
+	while (PINB & (1 << FAULT)) {
 		// Clear FAULT if Reset is pressed and no ILK is pending
 		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) PORTB &= ~(1 << FAULT);
-	read_temp();
-	// check_state(dm, disp);
-	_delay_ms(100);
+		check_state(dm, disp);
+		_delay_ms(100);	
 	}
 	}
 	return 0;
@@ -228,14 +144,53 @@ ISR (INT0_vect) {
 	PORTD &= ~( (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW2_EN) );
 	PORTB |= (1 << FAULT);
 	// Read ILK register and set FAULT register
-	read_fault_req_flag = 1;
-	rx_req_flag = 1;
-	tx_req_flag = 0;
+	uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
+	mcp23017_writebyte(MCP23017_OLATB, err);
 }
 
 ISR (INT1_vect) {
 	// Interrupt Service Routine at any change of PTT
 	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();	
 	else sequence_off();
+}
+
+// poll diplay state button
+int check_state(int dm, int disp) {
+	if ( (PINB & (1 << PB2)) && (dm == 0) ) {
+		dm = 1; disp++;
+		if (disp > 2) disp = 0;
+		}
+	else dm = 0;
+	return disp;
+}
+
+// Read ADC and print to Display
+void read_temp(void) {
+	int16_t adcval;
+	// Buffer for Display
+	unsigned char buffer[6] = {'\0'};
+	// cache for integer calculation
+	unsigned char cache_i[3];
+	// cache for floating number calculation
+	unsigned char cache_f[1];	
+	//clean(buffer);
+	adcval = ADC_read(1)-off1;		// subtract offset
+	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
+	else buffer[0]=45; 			// adds '-' as 1st char
+	adcval=abs(adcval);			// change to abs value (modulo)
+	itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
+	if ((adcval/g1) < 10) {
+		buffer[1] = 32; 		// insert space as 2nd char
+		buffer[2] = cache_i[0];		// put cache_i as 3rd char
+	}
+	else {					// value > 10
+		buffer[1] = cache_i[0];		// put cache_i[0] as 2nd char
+		buffer[2] = cache_i[1];		// put cache_i[1] as 3rd char
+	}
+	itoa((10*(adcval%g1)/g1), cache_f, 10); // extract decimal place
+	buffer[3] = 46;				// put '.' as 4th char
+	buffer[4] = cache_f[0];			// put cache_f[0] as 5th char
+	buffer[5] = '\0';
+	lcd_printlc(2, 4, buffer);		// print buffer string to lcd
 }
 
