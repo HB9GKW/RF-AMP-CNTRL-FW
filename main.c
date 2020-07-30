@@ -41,7 +41,7 @@ void ADC_init(void) {
 
 void display_init(void) {
 	lcd_init();
-	lcd_def_char(bar1, 3);
+	//lcd_def_char(bar1, 3);
 	lcd_command(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF);
 	lcd_light(true);
 	lcd_printlc_P(1, 1, string_flash1);
@@ -92,7 +92,7 @@ void clean(char *var) {
 }
 
 int check_state(int dm, int disp);
-void read_temp(unsigned char *buffer[6]);
+void read_temp(void);
 
 int main(void) {
 	// GPIO Setup
@@ -131,9 +131,12 @@ int main(void) {
 	}
 	while (PINB & (1 << FAULT)) {
 		// Clear FAULT if Reset is pressed and no ILK is pending
-		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) PORTB &= ~(1 << FAULT);
+		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
+		PORTB &= ~(1 << FAULT);
+		sei();
 		check_state(dm, disp);
 		_delay_ms(100);	
+		}
 	}
 	}
 	return 0;
@@ -143,6 +146,7 @@ ISR (INT0_vect) {
 	// Interrupt Service Routine at falling edge of ILK
 	PORTD &= ~( (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW2_EN) );
 	PORTB |= (1 << FAULT);
+	cli();
 	// Read ILK register and set FAULT register
 	uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
 	mcp23017_writebyte(MCP23017_OLATB, err);
@@ -170,9 +174,9 @@ void read_temp(void) {
 	// Buffer for Display
 	unsigned char buffer[6] = {'\0'};
 	// cache for integer calculation
-	unsigned char cache_i[3];
+	char cache_i[3];
 	// cache for floating number calculation
-	unsigned char cache_f[1];	
+	char cache_f[1];	
 	//clean(buffer);
 	adcval = ADC_read(1)-off1;		// subtract offset
 	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
@@ -193,4 +197,3 @@ void read_temp(void) {
 	buffer[5] = '\0';
 	lcd_printlc(2, 4, buffer);		// print buffer string to lcd
 }
-

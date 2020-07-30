@@ -30,7 +30,7 @@
 
 
 //functions
-extern void mcp23017_init();
+extern void mcp23017_init(void);
 extern void mcp23017_writebyte(uint8_t reg, uint8_t data);
 extern uint8_t mcp23017_readbyte(uint8_t reg);
 extern void mcp23017_writepinA(uint8_t pin, uint8_t state);

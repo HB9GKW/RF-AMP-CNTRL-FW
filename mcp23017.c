@@ -2,7 +2,8 @@
  * MCP23017
  */
 
-#include "mcp32017.h"
+#include <avr/io.h>
+#include "mcp23017.h"
 #include "i2cmaster.h"
 
 /*
@@ -51,7 +52,7 @@ void mcp23017_writepinA(uint8_t pin, uint8_t state) {
 /*
  * write single pin on port B
  */
-void mcp23017_writepinA(uint8_t pin, uint8_t state) {
+void mcp23017_writepinB(uint8_t pin, uint8_t state) {
 	uint8_t data = mcp23017_readbyte(MCP23017_OLATB);
 	data &= ~(1<<pin);
 	if(state) data |= (1<<pin);
@@ -78,7 +79,7 @@ uint8_t mcp23017_readpinB(uint8_t pin) {
  * init
  */
 void mcp23017_init() {
-	mcp23017_writebyte(MCP23017_IOCON, 0x34);	
+	mcp23017_writebyte(MCP23017_IOCONA, 0x34);	
 	mcp23017_writebyte(MCP23017_GPPUA, 0xFF);	
 	mcp23017_writebyte(MCP23017_IODIRA, 0xFF);
 	mcp23017_writebyte(MCP23017_IODIRB, 0x00);	
