@@ -3,8 +3,8 @@
  */
 
 #include <avr/io.h>
-#include "mcp23017.h"
 #include "i2cmaster.h"
+#include "mcp23017.h"
 
 /*
  * write a byte
