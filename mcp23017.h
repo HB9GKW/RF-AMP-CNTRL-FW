@@ -1,6 +1,4 @@
-/*
- * Header file
- */
+/* * Header file */
 
 #define MCP23017_ADDR 0x40
 

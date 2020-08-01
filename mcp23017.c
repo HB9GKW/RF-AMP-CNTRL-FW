@@ -78,11 +78,12 @@ uint8_t mcp23017_readpinB(uint8_t pin) {
 /*
  * init
  */
-void mcp23017_init() {
-	mcp23017_writebyte(MCP23017_IOCONA, 0x34);	
-	mcp23017_writebyte(MCP23017_GPPUA, 0xFF);	
+void mcp23017_init(void) {
+	mcp23017_writebyte(MCP23017_IOCONA, 0x34);
+	mcp23017_writebyte(MCP23017_GPPUA, 0xFF);
 	mcp23017_writebyte(MCP23017_IODIRA, 0xFF);
-	mcp23017_writebyte(MCP23017_IODIRB, 0x00);	
+	mcp23017_writebyte(MCP23017_IODIRB, 0x00);
+	mcp23017_writebyte(MCP23017_GPIOB, 0x00);
 	mcp23017_writebyte(MCP23017_DEFVALA, 0xFF);
 	mcp23017_writebyte(MCP23017_GPINTENA, 0xFF);
 	mcp23017_writebyte(MCP23017_INTCONA, 0xFF);

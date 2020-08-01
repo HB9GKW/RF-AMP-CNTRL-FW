@@ -48,6 +48,7 @@ void display_init(void) {
 	lcd_printlc_P(2, 1, string_flash2);
 	_delay_ms(1000);
 	lcd_command(LCD_CLEAR);
+	_delay_ms(100);
 }
 
 uint16_t ADC_read(uint8_t channel) {
@@ -134,9 +135,10 @@ int main(void) {
 		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
 		PORTB &= ~(1 << FAULT);
 		sei();
-		check_state(dm, disp);
-		_delay_ms(100);	
 		}
+		check_state(dm, disp);
+		_delay_ms(100);
+		(void) mcp23017_readbyte(MCP23017_INTCAPA);
 	}
 	}
 	return 0;
@@ -176,7 +178,7 @@ void read_temp(void) {
 	// cache for integer calculation
 	char cache_i[3];
 	// cache for floating number calculation
-	char cache_f[1];	
+	char cache_f[1];
 	//clean(buffer);
 	adcval = ADC_read(1)-off1;		// subtract offset
 	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
