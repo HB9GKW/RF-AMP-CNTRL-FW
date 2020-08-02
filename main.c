@@ -41,14 +41,16 @@ void ADC_init(void) {
 
 void display_init(void) {
 	lcd_init();
-	//lcd_def_char(bar1, 3);
+	lcd_def_char(degC, 0);
+	lcd_def_char(bar1, 1);
+	lcd_def_char(bar2, 2);
+	lcd_def_char(bar3, 3);
+	lcd_def_char(bar4, 4);
 	lcd_command(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF);
 	lcd_light(true);
 	lcd_printlc_P(1, 1, string_flash1);
 	lcd_printlc_P(2, 1, string_flash2);
 	_delay_ms(1000);
-	lcd_command(LCD_CLEAR);
-	_delay_ms(100);
 }
 
 uint16_t ADC_read(uint8_t channel) {
@@ -84,7 +86,7 @@ void sequence_off(void) {
 	PORTB &= ~(1 << ON_AIR);
 }
 
-void clean(char *var) {
+void clean(unsigned char *var) {
 	int i = 0;
 	while(var[i] != '\0') {
 		var[i] = '\0';
@@ -92,7 +94,7 @@ void clean(char *var) {
 	}
 }
 
-int check_state(int dm, int disp);
+void read_display_button(uint8_t *, uint8_t *);
 void read_temp(void);
 
 int main(void) {
@@ -113,6 +115,7 @@ int main(void) {
 	// Main loop
 	for (;;) {
 	// OPR mode
+	lcd_command(LCD_CLEAR);
 	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
 		// Switch on VDD
 		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
@@ -124,19 +127,23 @@ int main(void) {
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
 	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
+	unsigned char test = 0x01;
+	lcd_printlc(2, 8, test);
 	// Standbye mode
 	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
 		read_temp();
-		check_state(dm, disp);
+		read_display_button(&dm, &disp);
 		_delay_ms(100);
 	}
 	while (PINB & (1 << FAULT)) {
+		// Read ILK register and set FAULT register
+		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
+		mcp23017_writebyte(MCP23017_OLATB, err);
 		// Clear FAULT if Reset is pressed and no ILK is pending
 		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
 		PORTB &= ~(1 << FAULT);
 		sei();
 		}
-		check_state(dm, disp);
 		_delay_ms(100);
 		(void) mcp23017_readbyte(MCP23017_INTCAPA);
 	}
@@ -149,9 +156,6 @@ ISR (INT0_vect) {
 	PORTD &= ~( (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW2_EN) );
 	PORTB |= (1 << FAULT);
 	cli();
-	// Read ILK register and set FAULT register
-	uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
-	mcp23017_writebyte(MCP23017_OLATB, err);
 }
 
 ISR (INT1_vect) {
@@ -160,14 +164,13 @@ ISR (INT1_vect) {
 	else sequence_off();
 }
 
-// poll diplay state button
-int check_state(int dm, int disp) {
-	if ( (PINB & (1 << PB2)) && (dm == 0) ) {
-		dm = 1; disp++;
-		if (disp > 2) disp = 0;
+// poll diplay select button
+void read_display_button(uint8_t *dm, uint8_t *disp) {
+	if ( !(PINB & (1 << PB2)) && (*dm == 0) ) {
+		*dm = 1; *disp++;
+		if (*disp > 2) *disp = 0;
 		}
-	else dm = 0;
-	return disp;
+	else if ( (PINB & (1 << PB2)) && (*dm == 1) ) *dm = 0;
 }
 
 // Read ADC and print to Display

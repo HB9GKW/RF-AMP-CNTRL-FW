@@ -128,11 +128,11 @@ int main(void)
 */
 /*@{*/
 
-#define LCD_I2C_DEVICE		0x4E	    /**< Change this to the address of your port expander */
+#define LCD_I2C_DEVICE			0x4E	    /**< Change this to the address of your port expander */
 #define LCD_LINES			2	        /**< Enter the number of lines of your display here */
 #define LCD_COLS			16	        /**< Enter the number of columns of your display here */
-#define LCD_LINE_MODE       LCD_2LINE   /**< Enter line mode your display here */
-#define LCD_LIGHT_LOW_ACTIVE 0          /**< Set to one, if low active */
+#define LCD_LINE_MODE       		LCD_2LINE   /**< Enter line mode your display here */
+#define LCD_LIGHT_LOW_ACTIVE 		0          /**< Set to one, if low active */
 
 #define LCD_LINE1			0x00	    /**< This should be 0x00 on all displays */
 #define LCD_LINE2			0x40	    /**< Change this to the address for line 2 on your display */
@@ -166,7 +166,7 @@ int main(void)
 #define LCD_RS_PIN			0	/**< LCD-Pin RS is connected to P0 on the PCF8574 */
 #define LCD_RW_PIN			1	/**< LCD-Pin RW is connected to P1 on the PCF8574 */
 #define LCD_E_PIN			2	/**< LCD-Pin E is connected to P2 on the PCF8574 */
-#define LCD_LIGHT_PIN	    3	/**< LCD backlight is connected to P3 on the PCF8574 */
+#define LCD_LIGHT_PIN	    		3	/**< LCD backlight is connected to P3 on the PCF8574 */
 /*@}*/
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -220,14 +220,14 @@ int main(void)
 
 /** @name GENERAL COMMANDS */
 /*@{*/ 
-#define LCD_CLEAR			0x01	/**< Clear screen */
-#define LCD_HOME			0x02	/**< Cursor move to first digit */
-#define LCD_DEF_CHAR 	    0x40	/**< Define a user char */
+	#define LCD_CLEAR		0x01	/**< Clear screen */
+	#define LCD_HOME		0x02	/**< Cursor move to first digit */
+	#define LCD_DEF_CHAR 	    	0x40	/**< Define a user char */
 /*@}*/ 
 
 /** @name ENTRYMODES */
 /*@{*/ 
-#define LCD_ENTRYMODE			0x04			/**< Set entrymode */
+	#define LCD_ENTRYMODE		0x04			/**< Set entrymode */
 	#define LCD_INCREASE		LCD_ENTRYMODE | 0x02	/**<	Set cursor move direction -- Increase */
 	#define LCD_DECREASE		LCD_ENTRYMODE | 0x00	/**<	Set cursor move direction -- Decrease */
 	#define LCD_DISPLAYSHIFTON	LCD_ENTRYMODE | 0x01	/**<	Display is shifted */
@@ -236,7 +236,7 @@ int main(void)
 
 /** @name DISPLAYMODES */
 /*@{*/ 
-#define LCD_DISPLAYMODE			0x08			/**< Set displaymode */
+	#define LCD_DISPLAYMODE		0x08			/**< Set displaymode */
 	#define LCD_DISPLAYON		LCD_DISPLAYMODE | 0x04	/**<	Display on */
 	#define LCD_DISPLAYOFF		LCD_DISPLAYMODE | 0x00	/**<	Display off */
 	#define LCD_CURSORON		LCD_DISPLAYMODE | 0x02	/**<	Cursor on */
@@ -247,16 +247,16 @@ int main(void)
 
 /** @name SHIFTMODES */
 /*@{*/ 
-#define LCD_SHIFTMODE			0x10			/**< Set shiftmode */
+	#define LCD_SHIFTMODE		0x10			/**< Set shiftmode */
 	#define LCD_DISPLAYSHIFT	LCD_SHIFTMODE | 0x08	/**<	Display shift */
 	#define LCD_CURSORMOVE		LCD_SHIFTMODE | 0x00	/**<	Cursor move */
-	#define LCD_RIGHT			LCD_SHIFTMODE | 0x04	/**<	Right shift */
-	#define LCD_LEFT			LCD_SHIFTMODE | 0x00	/**<	Left shift */
+	#define LCD_RIGHT		LCD_SHIFTMODE | 0x04	/**<	Right shift */
+	#define LCD_LEFT		LCD_SHIFTMODE | 0x00	/**<	Left shift */
 /*@}*/ 
 
 /** @name DISPLAY_CONFIGURATION */
 /*@{*/ 
-#define LCD_CONFIGURATION		0x20				/**< Set function */
+	#define LCD_CONFIGURATION	0x20				/**< Set function */
 	#define LCD_8BIT		LCD_CONFIGURATION | 0x10	/**<	8 bits interface */
 	#define LCD_4BIT		LCD_CONFIGURATION | 0x00	/**<	4 bits interface */
 	#define LCD_2LINE		LCD_CONFIGURATION | 0x08	/**<	2 line display */
@@ -264,8 +264,8 @@ int main(void)
 	#define LCD_5X10		LCD_CONFIGURATION | 0x04	/**<	5 X 10 dots */
 	#define LCD_5X7			LCD_CONFIGURATION | 0x00	/**<	5 X 7 dots */
 
-#define LCD_LIGHT_OFF		0
-#define LCD_LIGHT_ON		LCD_LIGHT
+	#define LCD_LIGHT_OFF		0
+	#define LCD_LIGHT_ON		LCD_LIGHT
 /*@}*/ 
 
 //-------------------------------------------------------------------------------------------------------------------
