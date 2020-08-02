@@ -120,15 +120,15 @@ int main(void) {
 		// Switch on VDD
 		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
 		// read ADCs and update Display
-		if ( (PINB & (1 << ON_AIR)) ) { 
+		if ( (PINB & (1 << ON_AIR)) ) {
 			// read & display temp 1 + 2, IDD, VDD
 		}
 	}
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
 	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
-	unsigned char test = 0x01;
-	lcd_printlc(2, 8, test);
+	unsigned char test = 0x00;
+	lcd_putcharlc(2, 9, test);
 	// Standbye mode
 	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
 		read_temp();
