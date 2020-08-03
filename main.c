@@ -135,10 +135,30 @@ int main(void) {
 		read_display_button(&dm, &disp);
 		_delay_ms(100);
 	}
+	// Fault mode
 	while (PINB & (1 << FAULT)) {
 		// Read ILK register and set FAULT register
 		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
-		mcp23017_writebyte(MCP23017_OLATB, err);
+		mcp23017_writebyte(MCP23017_OLATB, ~err);
+		switch (err) {
+			case ILK_HSWR1:
+			case ILK_HSWR2:
+			case ILK_HSWR3:
+			case ILK_HSWR4:
+			lcd_printlc_P(2, 5, string_flash8);
+			break;
+			case ILK_RF_OL:
+			lcd_printlc_P(2, 5, string_flash3);
+			break;
+			case ILK_IDD_OL:
+			lcd_printlc_P(2, 5, string_flash4);
+			break;
+			case TEMP1:
+			lcd_printlc_P(2, 5, string_flash6);
+			break;
+			case TEMP2:
+			lcd_printlc_P(2, 5, string_flash7);
+			break;
 		// Clear FAULT if Reset is pressed and no ILK is pending
 		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
 		PORTB &= ~(1 << FAULT);
