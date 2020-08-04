@@ -15,6 +15,103 @@
 #include "mcp23017.h"
 #include "i2clcd.h"
 
+// Function prototypes
+void gpio_setup(void);
+void ADC_init(void);
+void display_init(void);
+uint16_t ADC_read(uint8_t channel);
+void sequence_on(void);
+void sequence_off(void);
+void clean(unsigned char *var);
+void read_display_button(uint8_t *, uint8_t *);
+void read_temp(void);
+
+int main(void) {
+	// GPIO Setup
+	gpio_setup();
+	// I2C init
+	i2c_init();
+	// LCD Display init
+	display_init();
+	// MCP23017 init
+	mcp23017_init();
+	// ADC init
+	ADC_init();
+	// Display mode init
+	uint8_t dm = 0, disp = 0;
+	// Enable global interrupts
+	sei();
+	// Main loop
+	for (;;) {
+	// OPR mode
+	lcd_command(LCD_CLEAR);
+	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
+		// Switch on VDD
+		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
+		// read ADCs and update Display
+		if ( (PINB & (1 << ON_AIR)) ) {
+			// read & display temp 1 + 2, IDD, VDD
+		}
+	}
+	sequence_off();
+	PORTD &= ~(1 << VDD_EN);
+	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
+	unsigned char test = 0x00;
+	lcd_putcharlc(2, 9, test);
+	// Standbye mode
+	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
+		read_temp();
+		read_display_button(&dm, &disp);
+		_delay_ms(100);
+	}
+	// Fault mode
+	while (PINB & (1 << FAULT)) {
+		// Read ILK register and set FAULT register
+		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
+		mcp23017_writebyte(MCP23017_OLATB, ~err);
+		switch (err) {
+			case ILK_HSWR1:
+			case ILK_HSWR2:
+			case ILK_HSWR3:
+			case ILK_HSWR4:
+			lcd_printlc_P(2, 5, string_flash8);
+			break;
+			case ILK_RF_OL:
+			lcd_printlc_P(2, 5, string_flash3);
+			break;
+			case ILK_IDD_OL:
+			lcd_printlc_P(2, 5, string_flash4);
+			break;
+			case ILK_TEMP1:
+			lcd_printlc_P(2, 5, string_flash6);
+			break;
+			case ILK_TEMP2:
+			lcd_printlc_P(2, 5, string_flash7);
+			break;
+		}
+		// Clear FAULT if Reset is pressed and no ILK is pending
+		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
+		PORTB &= ~(1 << FAULT);
+		sei();
+		}
+		_delay_ms(100);
+		(void) mcp23017_readbyte(MCP23017_INTCAPA);
+	}
+	}
+	return 0;
+}
+// Interrupt Service Routine at falling edge of ILK
+ISR (INT0_vect) {
+	PORTD &= ~( (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW2_EN) );
+	PORTB |= (1 << FAULT);
+	cli();
+}
+// Interrupt Service Routine at any change of PTT
+ISR (INT1_vect) {
+	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();	
+	else sequence_off();
+}
+
 void gpio_setup(void) {
 	// Data Direction Register Port D: GATE_ALC_EN / VDD_EN / RF_SW1_EN / RF_SW2_EN -> output
 	DDRD = (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW1_EN) | (1 << RF_SW2_EN);
@@ -85,7 +182,7 @@ void sequence_off(void) {
 	PORTD &= ~(1 << RF_SW1_EN);
 	PORTB &= ~(1 << ON_AIR);
 }
-
+// clean buffer
 void clean(unsigned char *var) {
 	int i = 0;
 	while(var[i] != '\0') {
@@ -93,97 +190,6 @@ void clean(unsigned char *var) {
 		i++;
 	}
 }
-
-void read_display_button(uint8_t *, uint8_t *);
-void read_temp(void);
-
-int main(void) {
-	// GPIO Setup
-	gpio_setup();
-	// I2C init
-	i2c_init();
-	// LCD Display init
-	display_init();
-	// MCP23017 init
-	mcp23017_init();
-	// ADC init
-	ADC_init();
-	// Display mode init
-	uint8_t dm = 0, disp = 0;
-	// Enable global interrupts
-	sei();
-	// Main loop
-	for (;;) {
-	// OPR mode
-	lcd_command(LCD_CLEAR);
-	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		// Switch on VDD
-		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
-		// read ADCs and update Display
-		if ( (PINB & (1 << ON_AIR)) ) {
-			// read & display temp 1 + 2, IDD, VDD
-		}
-	}
-	sequence_off();
-	PORTD &= ~(1 << VDD_EN);
-	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
-	unsigned char test = 0x00;
-	lcd_putcharlc(2, 9, test);
-	// Standbye mode
-	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		read_temp();
-		read_display_button(&dm, &disp);
-		_delay_ms(100);
-	}
-	// Fault mode
-	while (PINB & (1 << FAULT)) {
-		// Read ILK register and set FAULT register
-		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
-		mcp23017_writebyte(MCP23017_OLATB, ~err);
-		switch (err) {
-			case ILK_HSWR1:
-			case ILK_HSWR2:
-			case ILK_HSWR3:
-			case ILK_HSWR4:
-			lcd_printlc_P(2, 5, string_flash8);
-			break;
-			case ILK_RF_OL:
-			lcd_printlc_P(2, 5, string_flash3);
-			break;
-			case ILK_IDD_OL:
-			lcd_printlc_P(2, 5, string_flash4);
-			break;
-			case TEMP1:
-			lcd_printlc_P(2, 5, string_flash6);
-			break;
-			case TEMP2:
-			lcd_printlc_P(2, 5, string_flash7);
-			break;
-		// Clear FAULT if Reset is pressed and no ILK is pending
-		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
-		PORTB &= ~(1 << FAULT);
-		sei();
-		}
-		_delay_ms(100);
-		(void) mcp23017_readbyte(MCP23017_INTCAPA);
-	}
-	}
-	return 0;
-}
-
-ISR (INT0_vect) {
-	// Interrupt Service Routine at falling edge of ILK
-	PORTD &= ~( (1 << GATE_ALC_EN) | (1 << VDD_EN) | (1 << RF_SW2_EN) );
-	PORTB |= (1 << FAULT);
-	cli();
-}
-
-ISR (INT1_vect) {
-	// Interrupt Service Routine at any change of PTT
-	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();	
-	else sequence_off();
-}
-
 // poll diplay select button
 void read_display_button(uint8_t *dm, uint8_t *disp) {
 	if ( !(PINB & (1 << PB2)) && (*dm == 0) ) {
@@ -192,7 +198,6 @@ void read_display_button(uint8_t *dm, uint8_t *disp) {
 		}
 	else if ( (PINB & (1 << PB2)) && (*dm == 1) ) *dm = 0;
 }
-
 // Read ADC and print to Display
 void read_temp(void) {
 	int16_t adcval;

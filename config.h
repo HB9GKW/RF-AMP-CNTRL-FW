@@ -31,14 +31,14 @@
 #define REF_MON 		ADC7
 
 // Signal mapping for ILK port
-#define ILK_HSWR1		~(1 << 0)
-#define ILK_HSWR2		~(1 << 1)
-#define ILK_HSWR3		~(1 << 2)
-#define ILK_HSWR4		~(1 << 3)
-#define ILK_RF_OL		~(1 << 4)
-#define ILK_IDD_OL		~(1 << 5)
-#define ILK_TEMP1		~(1 << 6)
-#define ILK_TEMP2		~(1 << 7)
+#define ILK_HSWR1		0b11111110
+#define ILK_HSWR2		0b11111101
+#define ILK_HSWR3		0b11111011
+#define ILK_HSWR4		0b11110111
+#define ILK_RF_OL		0b11101111
+#define ILK_IDD_OL		0b11011111
+#define ILK_TEMP1		0b10111111
+#define ILK_TEMP2		0b01111111
 
 // Signal settings
 // Temp1 offset
