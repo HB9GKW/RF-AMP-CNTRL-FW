@@ -58,6 +58,7 @@ const char string_flash8[] PROGMEM = "HSWR";
 const char string_flash9[] PROGMEM = "FWD";
 const char string_flash10[] PROGMEM = "REF";
 const char string_flash11[] PROGMEM = "SWR";
+const char string_flash12[] PROGMEM = "FAULT";
 const char degC[] PROGMEM = {0x18, 0x18, 0x07, 0x08, 0x08, 0x08, 0x08, 0x07};
 const char bar1[] PROGMEM = {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10};
 const char bar2[] PROGMEM = {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18};

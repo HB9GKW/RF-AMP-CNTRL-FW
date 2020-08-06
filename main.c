@@ -24,7 +24,7 @@ void sequence_on(void);
 void sequence_off(void);
 void clean(unsigned char *var);
 void read_display_button(uint8_t *, uint8_t *);
-void read_temp(void);
+void print_temp(void);
 
 int main(void) {
 	// GPIO Setup
@@ -43,11 +43,21 @@ int main(void) {
 	sei();
 	// Main loop
 	for (;;) {
-	// OPR mode
+	
 	lcd_command(LCD_CLEAR);
+	lcd_putcharlc(1, 3, 0x00); lcd_putcharlc(1, 10, 0x56); lcd_putcharlc(1, 16, 0x00);
+	
+	// Standbye mode
+	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
+		print_temp();
+		read_display_button(&dm, &disp);
+		_delay_ms(100);
+	}
+	
+	// OPR mode
+	// Switch on VDD
+	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) ) PORTD |= (1 << VDD_EN);
 	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		// Switch on VDD
-		if ( !(PORTD & (1 << VDD_EN)) ) PORTD |= (1 << VDD_EN);
 		// read ADCs and update Display
 		if ( (PINB & (1 << ON_AIR)) ) {
 			// read & display temp 1 + 2, IDD, VDD
@@ -55,47 +65,42 @@ int main(void) {
 	}
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
-	lcd_printlc_P(1, 1, string_flash6); lcd_printlc_P(2, 1, string_flash7);
-	unsigned char test = 0x00;
-	lcd_putcharlc(2, 9, test);
-	// Standbye mode
-	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		read_temp();
-		read_display_button(&dm, &disp);
-		_delay_ms(100);
-	}
+	
 	// Fault mode
-	while (PINB & (1 << FAULT)) {
+	if (PINB & (1 << FAULT)) {
 		// Read ILK register and set FAULT register
 		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
 		mcp23017_writebyte(MCP23017_OLATB, ~err);
+		lcd_printlc_P(2, 5, string_flash12);
 		switch (err) {
 			case ILK_HSWR1:
 			case ILK_HSWR2:
 			case ILK_HSWR3:
 			case ILK_HSWR4:
-			lcd_printlc_P(2, 5, string_flash8);
+			lcd_printlc_P(2, 7, string_flash8);
 			break;
 			case ILK_RF_OL:
-			lcd_printlc_P(2, 5, string_flash3);
+			lcd_printlc_P(2, 7, string_flash3);
 			break;
 			case ILK_IDD_OL:
-			lcd_printlc_P(2, 5, string_flash4);
+			lcd_printlc_P(2, 7, string_flash4);
 			break;
 			case ILK_TEMP1:
-			lcd_printlc_P(2, 5, string_flash6);
+			lcd_printlc_P(2, 7, string_flash6);
 			break;
 			case ILK_TEMP2:
-			lcd_printlc_P(2, 5, string_flash7);
+			lcd_printlc_P(2, 7, string_flash7);
 			break;
 		}
+	}
+	while (PINB & (1 << FAULT)) {
 		// Clear FAULT if Reset is pressed and no ILK is pending
 		if ( (PIND & (1 << ILK)) && !(PINB & (1 << RESET_ILK)) ) {
-		PORTB &= ~(1 << FAULT);
-		sei();
+			PORTB &= ~(1 << FAULT);
+			sei();
 		}
-		_delay_ms(100);
 		(void) mcp23017_readbyte(MCP23017_INTCAPA);
+		_delay_ms(100);
 	}
 	}
 	return 0;
@@ -182,7 +187,7 @@ void sequence_off(void) {
 	PORTD &= ~(1 << RF_SW1_EN);
 	PORTB &= ~(1 << ON_AIR);
 }
-// clean buffer
+// Clean buffer
 void clean(unsigned char *var) {
 	int i = 0;
 	while(var[i] != '\0') {
@@ -190,7 +195,7 @@ void clean(unsigned char *var) {
 		i++;
 	}
 }
-// poll diplay select button
+// Poll diplay select button
 void read_display_button(uint8_t *dm, uint8_t *disp) {
 	if ( !(PINB & (1 << PB2)) && (*dm == 0) ) {
 		*dm = 1; *disp++;
@@ -198,32 +203,29 @@ void read_display_button(uint8_t *dm, uint8_t *disp) {
 		}
 	else if ( (PINB & (1 << PB2)) && (*dm == 1) ) *dm = 0;
 }
-// Read ADC and print to Display
-void read_temp(void) {
+// Read temperature and print to LCD
+void print_temp(void) {
 	int16_t adcval;
-	// Buffer for Display
-	unsigned char buffer[6] = {'\0'};
-	// cache for integer calculation
-	char cache_i[3];
-	// cache for floating number calculation
-	char cache_f[1];
-	//clean(buffer);
-	adcval = ADC_read(1)-off1;		// subtract offset
-	if (adcval>0) buffer[0] = 43; 		// adds '+' as 1st char
-	else buffer[0]=45; 			// adds '-' as 1st char
-	adcval=abs(adcval);			// change to abs value (modulo)
-	itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
-	if ((adcval/g1) < 10) {
-		buffer[1] = 32; 		// insert space as 2nd char
-		buffer[2] = cache_i[0];		// put cache_i as 3rd char
-	}
-	else {					// value > 10
-		buffer[1] = cache_i[0];		// put cache_i[0] as 2nd char
-		buffer[2] = cache_i[1];		// put cache_i[1] as 3rd char
-	}
-	itoa((10*(adcval%g1)/g1), cache_f, 10); // extract decimal place
-	buffer[3] = 46;				// put '.' as 4th char
-	buffer[4] = cache_f[0];			// put cache_f[0] as 5th char
-	buffer[5] = '\0';
-	lcd_printlc(2, 4, buffer);		// print buffer string to lcd
+	for (uint8_t i = 0; i < 2; i++) {
+		unsigned char buffer[4] = {'\0'};	// string buffer for LCD
+		char cache_i[2];					// cache for integer calculation
+		adcval = ADC_read(i) - off1;		// subtract offset
+		if (adcval >= 0) buffer[0] = 43;	// adds '+' as 1st char
+		else buffer[0]=45; 					// adds '-' as 1st char
+		adcval = abs(adcval);				// change to abs value
+		if ( (adcval % g1) >= (adcval / 2)) adcval = adcval / g1 + 1; // round up
+		else adcval = adcval / g1;
+		itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
+		if ((adcval/g1) < 10) {
+			buffer[1] = 32; 				// insert space as 2nd char
+			buffer[2] = cache_i[0];			// put cache_i as 3rd char
+		}
+		else {								// value > 10
+			buffer[1] = cache_i[0];			// put cache_i[0] as 2nd char
+			buffer[2] = cache_i[1];			// put cache_i[1] as 3rd char
+		}
+		buffer[3] = '\0';
+		if (i == 0) lcd_printlc(1, 1, buffer);	// print buffer left
+		else lcd_printlc(1, 13, buffer);		// print buffer right
+}
 }
