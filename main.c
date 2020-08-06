@@ -45,7 +45,9 @@ int main(void) {
 	for (;;) {
 	
 	lcd_command(LCD_CLEAR);
-	lcd_putcharlc(1, 3, 0x00); lcd_putcharlc(1, 10, 0x56); lcd_putcharlc(1, 16, 0x00);
+	_delay_ms(100);
+	unsigned char test = 0x00;
+	lcd_putcharlc(1, 4, test); lcd_printlc_P(1, 10, PSTR("V")); lcd_putcharlc(1, 16, test);
 	
 	// Standbye mode
 	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
@@ -71,7 +73,7 @@ int main(void) {
 		// Read ILK register and set FAULT register
 		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
 		mcp23017_writebyte(MCP23017_OLATB, ~err);
-		lcd_printlc_P(2, 5, string_flash12);
+		lcd_printlc_P(2, 1, string_flash12);
 		switch (err) {
 			case ILK_HSWR1:
 			case ILK_HSWR2:
@@ -216,7 +218,7 @@ void print_temp(void) {
 		if ( (adcval % g1) >= (adcval / 2)) adcval = adcval / g1 + 1; // round up
 		else adcval = adcval / g1;
 		itoa((adcval/g1), cache_i, 10); 	// converte integer part to string
-		if ((adcval/g1) < 10) {
+		if (adcval < 10) {
 			buffer[1] = 32; 				// insert space as 2nd char
 			buffer[2] = cache_i[0];			// put cache_i as 3rd char
 		}
