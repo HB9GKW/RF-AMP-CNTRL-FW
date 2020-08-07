@@ -41,10 +41,11 @@
 #define ILK_TEMP2		0b01111111
 
 // Signal settings
-// Temp1 offset
-#define off1 100
-// Temp1 gain
-#define g1 10
+// Offset
+#define off_temp		100
+// Gain
+#define g_temp 			10
+#define g_vdd			17
 
 // Define Display Strings and Characters in PROGMEM
 const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";

@@ -25,6 +25,7 @@ void sequence_off(void);
 void clean(unsigned char *var);
 void read_display_button(uint8_t *, uint8_t *);
 void print_temp(void);
+void print_vdd(void);
 
 int main(void) {
 	// GPIO Setup
@@ -43,19 +44,19 @@ int main(void) {
 	sei();
 	// Main loop
 	for (;;) {
-	
+
 	lcd_command(LCD_CLEAR);
-	_delay_ms(100);
-	unsigned char test = 0x00;
-	lcd_putcharlc(1, 4, 0); lcd_printlc_P(1, 10, PSTR("V")); lcd_putcharlc(1, 16, test);
-	
+	_delay_ms(10);
+	lcd_putcharlc(1, 4, 0); lcd_putcharlc(1, 10, 86); lcd_putcharlc(1, 16, 0);
+
 	// Standbye mode
 	while ( (PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
 		print_temp();
+		print_vdd();
 		read_display_button(&dm, &disp);
 		_delay_ms(100);
 	}
-	
+
 	// OPR mode
 	// Switch on VDD
 	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) ) PORTD |= (1 << VDD_EN);
@@ -67,7 +68,7 @@ int main(void) {
 	}
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
-	
+
 	// Fault mode
 	if (PINB & (1 << FAULT)) {
 		// Read ILK register and set FAULT register
@@ -115,7 +116,7 @@ ISR (INT0_vect) {
 }
 // Interrupt Service Routine at any change of PTT
 ISR (INT1_vect) {
-	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();	
+	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) && !(PIND & (1 << PTT)) ) sequence_on();
 	else sequence_off();
 }
 
@@ -200,7 +201,7 @@ void clean(unsigned char *var) {
 // Poll diplay select button
 void read_display_button(uint8_t *dm, uint8_t *disp) {
 	if ( !(PINB & (1 << PB2)) && (*dm == 0) ) {
-		*dm = 1; *disp++;
+		*dm = 1; *disp =+ 1;
 		if (*disp > 2) *disp = 0;
 		}
 	else if ( (PINB & (1 << PB2)) && (*dm == 1) ) *dm = 0;
@@ -211,12 +212,12 @@ void print_temp(void) {
 	unsigned char buffer[4] = {'\0'};		// string buffer for LCD
 	for (uint8_t i = 0; i < 2; i++) {
 		char cache_i[2];					// cache for integer calculation
-		adcval = ADC_read(i) - off1;		// subtract offset
+		adcval = ADC_read(i) - off_temp;	// subtract offset
 		if (adcval >= 0) buffer[0] = 43;	// adds '+' as 1st char
-		else buffer[0]=45; 					// adds '-' as 1st char
+		else buffer[0] = 45; 					// adds '-' as 1st char
 		adcval = abs(adcval);				// change to abs value
-		if ( (adcval % g1) >= (adcval / 2) ) adcval = (adcval / g1) + 1; // round up
-		else adcval = adcval / g1;
+		if ( (adcval % g_temp) >= (g_temp / 2) && (adcval >= g_temp / 2) ) adcval = (adcval / g_temp) + 1; // round up
+		else adcval = adcval / g_temp;
 		itoa(adcval, cache_i, 10); 			// converte integer part to string
 		if (adcval < 10) {
 			buffer[1] = 32; 				// insert space as 2nd char
@@ -230,5 +231,30 @@ void print_temp(void) {
 		if (i == 0) lcd_printlc(1, 1, buffer);	// print buffer left
 		else lcd_printlc(1, 13, buffer);		// print buffer right
 		clean(buffer);
+	}
 }
+
+// Read voltage and print to LCD
+void print_vdd(void) {
+	uint16_t adcval;
+	unsigned char buffer[5] = {'\0'};
+	char cache_i[2], cache_f[1];
+	adcval = ADC_read(2);
+	itoa(adcval, cache_i, 10);
+	if (adcval < 10) {
+		buffer[0] = 32;
+		buffer[1] = cache_i[0];
+	}
+	else {
+		buffer[0] = cache_i[0];
+		buffer[1] = cache_i[1];
+	}
+	if ( (10 * adcval % g_vdd) >= (g_vdd / 2) ) {
+	itoa( (10 * (adcval % g_vdd) / g_vdd) + 1, cache_f, 10);
+	}
+	else itoa( (10 * (adcval % g_vdd) / g_vdd), cache_f, 10);
+	buffer[2] = 46;
+	buffer[3] = cache_f[0];
+	buffer[4] = '\0';
+	lcd_printlc(1, 6, buffer);
 }
