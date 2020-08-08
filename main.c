@@ -245,8 +245,8 @@ void print_vdd(void) {
 	unsigned char buffer[5] = {'\0'};
 	char cache_i[2], cache_f[1];
 	adcval = ADC_read(2);
-	itoa(adcval, cache_i, 10);
-	if (adcval < 10) {
+	itoa((adcval / g_vdd), cache_i, 10);
+	if (adcval / g_vdd < 10) {
 		buffer[0] = 32;
 		buffer[1] = cache_i[0];
 	}
@@ -254,7 +254,7 @@ void print_vdd(void) {
 		buffer[0] = cache_i[0];
 		buffer[1] = cache_i[1];
 	}
-	if ( (10 * adcval % g_vdd) >= (g_vdd / 2) ) {
+	if ( (10 * (adcval % g_vdd)) >= (10 * (adcval % g_vdd) / 2) ) {
 	itoa( (10 * (adcval % g_vdd) / g_vdd) + 1, cache_f, 10);
 	}
 	else itoa( (10 * (adcval % g_vdd) / g_vdd), cache_f, 10);
