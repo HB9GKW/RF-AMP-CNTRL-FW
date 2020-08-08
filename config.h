@@ -47,8 +47,8 @@
 #define g_temp 			10
 #define g_vdd			17
 // Bargraph grid
-#define bar_f			2048	// bar_f = 2^16 / 16
-#define bar_1			409		// bar_1 = bar_f * 1 / 5
+#define bar_f			2048	// bar_f = 2^15 / 16
+#define bar_1			409	// bar_1 = bar_f * 1 / 5
 #define bar_2			819	// bar_2 = bar_f * 2 / 5
 #define bar_3			1228	// bar_2 = bar_f * 3 / 5
 #define bar_4			1638	// bar_2 = bar_f * 4 / 5
