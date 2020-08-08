@@ -268,7 +268,7 @@ void print_idd(void) {
 	uint16_t adcval;
 	unsigned char buffer[17] = {'\0'};
 	uint8_t zero_flag = 0;
-	adcval = (ADC_read(3) << 6);
+	adcval = (ADC_read(3) << 5);
 	for (uint8_t i = 0; i <= 15; i++) {
 		if (zero_flag == 1) buffer[i] = 254;
 		else if ( adcval >= bar_f * (1 + i) ) buffer[i] = 255;
