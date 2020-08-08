@@ -26,6 +26,7 @@ void clean(unsigned char *var);
 void read_display_button(uint8_t *, uint8_t *);
 void print_temp(void);
 void print_vdd(void);
+void print_idd(void);
 
 int main(void) {
 	// GPIO Setup
@@ -61,9 +62,12 @@ int main(void) {
 	// Switch on VDD
 	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) ) PORTD |= (1 << VDD_EN);
 	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		// read ADCs and update Display
+		// display Temp + VDD
+		print_temp();
+		print_vdd();
 		if ( (PINB & (1 << ON_AIR)) ) {
-			// read & display temp 1 + 2, IDD, VDD
+			// display IDD
+			print_idd();
 		}
 	}
 	sequence_off();
@@ -71,6 +75,9 @@ int main(void) {
 
 	// Fault mode
 	if (PINB & (1 << FAULT)) {
+		lcd_command(LCD_CLEAR);
+		_delay_ms(10);
+		lcd_putcharlc(1, 4, 0); lcd_putcharlc(1, 10, 86); lcd_putcharlc(1, 16, 0);
 		// Read ILK register and set FAULT register
 		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
 		mcp23017_writebyte(MCP23017_OLATB, ~err);
@@ -102,8 +109,10 @@ int main(void) {
 			PORTB &= ~(1 << FAULT);
 			sei();
 		}
+		print_temp();
+		print_vdd();
 		(void) mcp23017_readbyte(MCP23017_INTCAPA);
-		_delay_ms(100);
+		_delay_ms(10);
 	}
 	}
 	return 0;
@@ -233,7 +242,6 @@ void print_temp(void) {
 		clean(buffer);
 	}
 }
-
 // Read voltage and print to LCD
 void print_vdd(void) {
 	uint16_t adcval;
@@ -257,4 +265,25 @@ void print_vdd(void) {
 	buffer[3] = cache_f[0];
 	buffer[4] = '\0';
 	lcd_printlc(1, 6, buffer);
+}
+// Read current and print bargraph to LCD
+void print_idd(void) {
+	uint16_t adcval;
+	unsigned char buffer[17] = {'\0'};
+	uint8_t zero_flag = 0;
+	adcval = (ADC_read(3) << 5);
+	for (uint8_t i = 0; i < 16; i++) {
+		if (zero_flag == 1) buffer[i] = 254;
+		else if ( adcval >= bar_f * (1 + i) ) buffer[i] = 255;
+		else if ( adcval >= bar_4 + (bar_f * i) ) buffer[i] = 4;
+		else if ( adcval >= bar_3 + (bar_f * i) ) buffer[i] = 3;
+		else if ( adcval >= bar_2 + (bar_f * i) ) buffer[i] = 2;
+		else if ( adcval >= bar_1 + (bar_f * i) ) buffer[i] = 1;
+		else {
+			buffer[i] = 254;
+			zero_flag = 1;
+		}
+	}
+	buffer[16] = '\0';
+	lcd_printlc(2, 1, buffer);
 }
