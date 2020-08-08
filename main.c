@@ -65,10 +65,7 @@ int main(void) {
 		// display Temp + VDD
 		print_temp();
 		print_vdd();
-		if ( (PINB & (1 << ON_AIR)) ) {
-			// display IDD
-			print_idd();
-		}
+		print_idd();
 	}
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
@@ -271,8 +268,8 @@ void print_idd(void) {
 	uint16_t adcval;
 	unsigned char buffer[17] = {'\0'};
 	uint8_t zero_flag = 0;
-	adcval = (ADC_read(3) << 5);
-	for (uint8_t i = 0; i < 16; i++) {
+	adcval = (ADC_read(3) << 6);
+	for (uint8_t i = 0; i <= 15; i++) {
 		if (zero_flag == 1) buffer[i] = 254;
 		else if ( adcval >= bar_f * (1 + i) ) buffer[i] = 255;
 		else if ( adcval >= bar_4 + (bar_f * i) ) buffer[i] = 4;
