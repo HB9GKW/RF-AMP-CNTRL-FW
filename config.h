@@ -46,6 +46,9 @@
 // Gain
 #define g_temp 			10
 #define g_vdd			17
+// Fan threshold
+#define temp_hi			420
+#define temp_lo			300
 // Bargraph grid
 #define bar_f			2048	// bar_f = 2^15 / 16
 #define bar_1			409	// bar_1 = bar_f * 1 / 5

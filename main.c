@@ -206,7 +206,7 @@ void clean(unsigned char *var) {
 }
 // Poll diplay select button
 void read_display_button(uint8_t *dm, uint8_t *disp) {
-	if ( !(PINB & (1 << PB2)) && (*dm == 0) ) {
+	if ( !(PINB & (1 << DISPLAY)) && (*dm == 0) ) {
 		*dm = 1; *disp =+ 1;
 		if (*disp > 2) *disp = 0;
 		}
@@ -221,8 +221,10 @@ void print_temp(void) {
 		adcval = ADC_read(i) - off_temp;	// subtract offset
 		if (adcval >= 0) buffer[0] = 43;	// adds '+' as 1st char
 		else buffer[0] = 45; 					// adds '-' as 1st char
+		if ( adcval > temp_hi && !(PINB & (1 << MOSI_FAN)) ) PORTB |= (1 << MOSI_FAN);	// switch on FAN
+		if ( adcval < temp_lo && (PINB & (1 << MOSI_FAN)) ) PORTB &= ~(1 << MOSI_FAN);	// switch off FAN
 		adcval = abs(adcval);				// change to abs value
-		if ( (adcval % g_temp) >= (g_temp / 2) && (adcval >= g_temp / 2) ) adcval = (adcval / g_temp) + 1; // round up
+		if ( ((10 * (adcval % g_temp)) / g_temp) >= 5 ) adcval = (adcval / g_temp) + 1; // round up
 		else adcval = adcval / g_temp;
 		itoa(adcval, cache_i, 10); 			// converte integer part to string
 		if (adcval < 10) {
@@ -254,7 +256,7 @@ void print_vdd(void) {
 		buffer[0] = cache_i[0];
 		buffer[1] = cache_i[1];
 	}
-	if ( (10 * (adcval % g_vdd)) >= (10 * (adcval % g_vdd) / 2) ) {
+	if ( ((10 * (adcval % g_vdd)) / g_vdd) >= 5 ) {
 	itoa( (10 * (adcval % g_vdd) / g_vdd) + 1, cache_f, 10);
 	}
 	else itoa( (10 * (adcval % g_vdd) / g_vdd), cache_f, 10);
