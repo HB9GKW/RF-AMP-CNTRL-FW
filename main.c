@@ -246,7 +246,7 @@ void print_vdd(void) {
 	uint16_t adcval;
 	unsigned char buffer[5] = {'\0'};
 	char cache_i[2], cache_f[1];
-	adcval = ADC_read(2);
+	adcval = (ADC_read(2) << 6);
 	itoa((adcval / g_vdd), cache_i, 10);
 	if (adcval / g_vdd < 10) {
 		buffer[0] = 32;

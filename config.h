@@ -45,7 +45,7 @@
 #define off_temp		100
 // Gain
 #define g_temp 			10
-#define g_vdd			17
+#define g_vdd			805
 // Fan threshold
 #define temp_hi			420
 #define temp_lo			300
