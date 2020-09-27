@@ -1,12 +1,7 @@
 /*
  * MCP23017
  */
-#ifndef F_CPU
-#define F_CPU 8000000UL
-#endif
-
 #include <avr/io.h>
-#include <util/delay.h>
 #include "i2cmaster.h"
 #include "mcp23017.h"
 
@@ -98,6 +93,5 @@ void mcp23017_init(void) {
 	// enable INTERRUPT-ON-CHANGE for port A
 	mcp23017_writebyte(MCP23017_GPINTENA, 0xFF);
 	// enable INTERRUPT for port A
-	// _delay_ms(100);
 	mcp23017_writebyte(MCP23017_INTCONA, 0xFF);
 }

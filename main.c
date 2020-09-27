@@ -37,17 +37,20 @@ int main(void) {
 	display_init();
 	// MCP23017 init
 	mcp23017_init();
+	_delay_ms(100);
 	// ADC init
 	ADC_init();
 	// Display mode init
 	uint8_t dm = 0, disp = 0;
-	// Enable global interrupts
-	sei();
+	// Enable global interrupts if no ILK is pending
+	if (PIND & (1 << ILK)) sei();
+	else PORTB |= (1 << FAULT);
 	// Main loop
 	for (;;) {
 
 	lcd_command(LCD_CLEAR);
 	_delay_ms(10);
+	// Set display units [°C]...[V]...[°C]
 	lcd_putcharlc(1, 4, 0); lcd_putcharlc(1, 10, 86); lcd_putcharlc(1, 16, 0);
 
 	// Standbye mode
@@ -67,6 +70,7 @@ int main(void) {
 		print_vdd();
 		print_idd();
 	}
+	// Leave OPR mode
 	sequence_off();
 	PORTD &= ~(1 << VDD_EN);
 
