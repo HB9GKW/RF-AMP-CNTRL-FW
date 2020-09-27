@@ -246,7 +246,7 @@ void print_vdd(void) {
 	uint16_t adcval;
 	unsigned char buffer[5] = {'\0'};
 	char cache_i[2], cache_f[1];
-	adcval = (ADC_read(2) << 6);
+	adcval = ( (ADC_read(2) - off_vdd) << 6);
 	itoa((adcval / g_vdd), cache_i, 10);
 	if (adcval / g_vdd < 10) {
 		buffer[0] = 32;
@@ -270,7 +270,7 @@ void print_idd(void) {
 	uint16_t adcval;
 	unsigned char buffer[17] = {'\0'};
 	uint8_t zero_flag = 0;
-	adcval = (ADC_read(3) << 5);
+	adcval = ( (ADC_read(3) - off_idd) << 5);
 	for (uint8_t i = 0; i <= 15; i++) {
 		if (zero_flag == 1) buffer[i] = 254;
 		else if ( adcval >= bar_f * (1 + i) ) buffer[i] = 255;

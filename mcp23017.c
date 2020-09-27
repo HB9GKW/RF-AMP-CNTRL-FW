@@ -1,8 +1,12 @@
 /*
  * MCP23017
  */
+#ifndef F_CPU
+#define F_CPU 8000000UL
+#endif
 
 #include <avr/io.h>
+#include <util/delay.h>
 #include "i2cmaster.h"
 #include "mcp23017.h"
 
@@ -79,12 +83,21 @@ uint8_t mcp23017_readpinB(uint8_t pin) {
  * init
  */
 void mcp23017_init(void) {
+	// BANK0 MIRROR0 SEQOP1 DISSLW1 HAEN0 ODR1 INTPOL0
 	mcp23017_writebyte(MCP23017_IOCONA, 0x34);
+	// enable pull-up resistors on port A
 	mcp23017_writebyte(MCP23017_GPPUA, 0xFF);
+	// port A -> input
 	mcp23017_writebyte(MCP23017_IODIRA, 0xFF);
+	// port B -> output
 	mcp23017_writebyte(MCP23017_IODIRB, 0x00);
+	// port B -> low
 	mcp23017_writebyte(MCP23017_GPIOB, 0x00);
+	// default value at port A -> high
 	mcp23017_writebyte(MCP23017_DEFVALA, 0xFF);
+	// enable INTERRUPT-ON-CHANGE for port A
 	mcp23017_writebyte(MCP23017_GPINTENA, 0xFF);
+	// enable INTERRUPT for port A
+	// _delay_ms(100);
 	mcp23017_writebyte(MCP23017_INTCONA, 0xFF);
 }
