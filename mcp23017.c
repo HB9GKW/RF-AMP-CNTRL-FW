@@ -90,8 +90,6 @@ void mcp23017_init(void) {
 	mcp23017_writebyte(MCP23017_GPIOB, 0x00);
 	// default value at port A -> high
 	mcp23017_writebyte(MCP23017_DEFVALA, 0xFF);
-	// enable INTERRUPT-ON-CHANGE for port A
-	mcp23017_writebyte(MCP23017_GPINTENA, 0xFF);
 	// enable INTERRUPT for port A
 	mcp23017_writebyte(MCP23017_INTCONA, 0xFF);
 }

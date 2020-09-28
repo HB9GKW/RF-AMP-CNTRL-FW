@@ -37,7 +37,6 @@ int main(void) {
 	display_init();
 	// MCP23017 init
 	mcp23017_init();
-	_delay_ms(100);
 	// ADC init
 	ADC_init();
 	// Display mode init
