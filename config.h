@@ -43,8 +43,8 @@
 // Signal settings
 // Offset
 #define off_temp		100
-#define off_vdd			1
-#define off_idd			30
+#define off_vdd			0
+#define off_idd			0
 // Gain
 #define g_temp 			10
 #define g_vdd			805
