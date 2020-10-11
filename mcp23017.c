@@ -92,4 +92,8 @@ void mcp23017_init(void) {
 	mcp23017_writebyte(MCP23017_DEFVALA, 0xFF);
 	// enable INTERRUPT for port A
 	mcp23017_writebyte(MCP23017_INTCONA, 0xFF);
+	// enable INTERRUPT-ON-CHANGE for port A
+	mcp23017_writebyte(MCP23017_GPINTENA, 0xFF);
+	// perform ILK read cycle to erase start-up fault
+	(void) mcp23017_readbyte(MCP23017_INTCAPA);
 }

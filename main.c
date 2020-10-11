@@ -64,7 +64,7 @@ int main(void) {
 	// Switch on VDD
 	if ( !(PINB & (1 << FAULT)) && !(PINB & (1 << OPR)) ) PORTD |= (1 << VDD_EN);
 	while ( !(PINB & (1 << OPR)) && !(PINB & (1 << FAULT)) ) {
-		// display Temp + VDD
+		// display Temp / VDD / IDD
 		print_temp();
 		print_vdd();
 		print_idd();
@@ -145,7 +145,8 @@ void gpio_setup(void) {
 }
 
 void ADC_init(void) {
-	ADMUX = (1 << REFS0);
+	// uncomment for AVcc reference
+	// ADMUX = (1 << REFS0);
 	ADCSRA = (1 << ADPS2) | (0 << ADPS1) | (1 << ADPS0);
 	ADCSRA |= (1 << ADEN);
 	ADCSRA |= (1 << ADSC);
@@ -164,7 +165,7 @@ void display_init(void) {
 	lcd_light(true);
 	lcd_printlc_P(1, 1, string_flash1);
 	lcd_printlc_P(2, 1, string_flash2);
-	_delay_ms(1000);
+	_delay_ms(1500);
 }
 
 uint16_t ADC_read(uint8_t channel) {
@@ -226,7 +227,7 @@ void print_temp(void) {
 		else buffer[0] = 45; 					// adds '-' as 1st char
 		if ( adcval > temp_hi && !(PINB & (1 << MOSI_FAN)) ) PORTB |= (1 << MOSI_FAN);	// switch on FAN
 		if ( adcval < temp_lo && (PINB & (1 << MOSI_FAN)) ) PORTB &= ~(1 << MOSI_FAN);	// switch off FAN
-		adcval = abs(adcval);				// change to abs value
+		adcval = abs(10*adcval);			// change to abs value
 		if ( ((10 * (adcval % g_temp)) / g_temp) >= 5 ) adcval = (adcval / g_temp) + 1; // round up
 		else adcval = adcval / g_temp;
 		itoa(adcval, cache_i, 10); 			// converte integer part to string
@@ -273,7 +274,7 @@ void print_idd(void) {
 	uint16_t adcval;
 	unsigned char buffer[17] = {'\0'};
 	uint8_t zero_flag = 0;
-	adcval = ( (ADC_read(3) - off_idd) << 5);
+	adcval = ( (ADC_read(3) - off_idd) << 6);
 	for (uint8_t i = 0; i <= 15; i++) {
 		if (zero_flag == 1) buffer[i] = 254;
 		else if ( adcval >= bar_f * (1 + i) ) buffer[i] = 255;

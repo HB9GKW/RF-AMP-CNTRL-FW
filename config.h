@@ -42,21 +42,22 @@
 
 // Signal settings
 // Offset
-#define off_temp		100
+#define off_temp		297
 #define off_vdd			0
 #define off_idd			0
 // Gain
-#define g_temp 			10
-#define g_vdd			805
+#define g_temp 			55
+#define g_vdd			1017
+#define g_idd			89
 // Fan threshold
 #define temp_hi			420
 #define temp_lo			300
 // Bargraph grid
-#define bar_f			2048	// bar_f = 2^15 / 16
-#define bar_1			409	// bar_1 = bar_f * 1 / 5
-#define bar_2			819	// bar_2 = bar_f * 2 / 5
-#define bar_3			1228	// bar_2 = bar_f * 3 / 5
-#define bar_4			1638	// bar_2 = bar_f * 4 / 5
+#define bar_f			4096	// bar_f = 2^16 / 16 x g_idd/100
+#define bar_1			819	// bar_1 = bar_f * 1 / 5
+#define bar_2			1638	// bar_2 = bar_f * 2 / 5
+#define bar_3			2458	// bar_2 = bar_f * 3 / 5
+#define bar_4			3277	// bar_2 = bar_f * 4 / 5
 
 // Define Display Strings and Characters in PROGMEM
 const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";
@@ -64,8 +65,8 @@ const char string_flash2[] PROGMEM = "*** HB9GKW ***";
 const char string_flash3[] PROGMEM = "OL";
 const char string_flash4[] PROGMEM = "IDD";
 const char string_flash5[] PROGMEM = "VDD";
-const char string_flash6[] PROGMEM = "T1";
-const char string_flash7[] PROGMEM = "T2";
+const char string_flash6[] PROGMEM = "TEMP1";
+const char string_flash7[] PROGMEM = "TEMP2";
 const char string_flash8[] PROGMEM = "HSWR";
 const char string_flash9[] PROGMEM = "FWD";
 const char string_flash10[] PROGMEM = "REF";
