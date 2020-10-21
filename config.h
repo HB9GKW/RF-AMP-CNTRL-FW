@@ -46,18 +46,18 @@
 #define off_vdd			0
 #define off_idd			0
 // Gain
-#define g_temp 			55
+#define g_temp 			60
 #define g_vdd			1017
-#define g_idd			89
+#define g_idd			98
 // Fan threshold
 #define temp_hi			420
 #define temp_lo			300
 // Bargraph grid
-#define bar_f			4096	// bar_f = 2^16 / 16 x g_idd/100
-#define bar_1			819	// bar_1 = bar_f * 1 / 5
-#define bar_2			1638	// bar_2 = bar_f * 2 / 5
-#define bar_3			2458	// bar_2 = bar_f * 3 / 5
-#define bar_4			3277	// bar_2 = bar_f * 4 / 5
+#define bar_f			4014	// bar_f = 2^16 / 16 x g_idd/100
+#define bar_1			803	// bar_1 = bar_f * 1 / 5
+#define bar_2			1606	// bar_2 = bar_f * 2 / 5
+#define bar_3			2408	// bar_2 = bar_f * 3 / 5
+#define bar_4			3211	// bar_2 = bar_f * 4 / 5
 
 // Define Display Strings and Characters in PROGMEM
 const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";
