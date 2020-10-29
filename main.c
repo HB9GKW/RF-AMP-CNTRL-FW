@@ -81,13 +81,23 @@ int main(void) {
 		// Read ILK register and set FAULT register
 		uint8_t err = mcp23017_readbyte(MCP23017_INTCAPA);
 		mcp23017_writebyte(MCP23017_OLATB, ~err);
-		lcd_printlc_P(2, 1, string_flash12);
+		lcd_printlc_P(2, 1, string_flash13);
 		switch (err) {
 			case ILK_HSWR1:
+			lcd_printlc_P(2, 7, string_flash8);
+			lcd_printlc_P(2, 12, string_flash9);
+			break;
 			case ILK_HSWR2:
+			lcd_printlc_P(2, 7, string_flash8);
+			lcd_printlc_P(2, 12, string_flash10);
+			break;
 			case ILK_HSWR3:
+			lcd_printlc_P(2, 7, string_flash8);
+			lcd_printlc_P(2, 12, string_flash11);
+			break;
 			case ILK_HSWR4:
 			lcd_printlc_P(2, 7, string_flash8);
+			lcd_printlc_P(2, 12, string_flash12);
 			break;
 			case ILK_RF_OL:
 			lcd_printlc_P(2, 7, string_flash3);
