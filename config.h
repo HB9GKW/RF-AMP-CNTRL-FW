@@ -42,11 +42,13 @@
 
 // Signal settings
 // Offset
-#define off_temp		297
+#define off_temp_l		77
+#define off_temp_h		15
 #define off_vdd			0
 #define off_idd			0
 // Gain
-#define g_temp 			60
+#define g_temp_l		83
+#define g_temp_h 		123
 #define g_vdd			1017
 #define g_idd			98
 // Fan threshold

@@ -44,9 +44,9 @@ int main(void) {
 	// Enable global interrupts if no ILK is pending
 	if (PIND & (1 << ILK)) sei();
 	else PORTB |= (1 << FAULT);
+
 	// Main loop
 	for (;;) {
-
 	lcd_command(LCD_CLEAR);
 	_delay_ms(10);
 	// Set display units [°C]...[V]...[°C]
@@ -228,32 +228,51 @@ void read_display_button(uint8_t *dm, uint8_t *disp) {
 }
 // Read temperature and print to LCD
 void print_temp(void) {
-	int16_t adcval;
-	unsigned char buffer[4] = {'\0'};		// string buffer for LCD
-	for (uint8_t i = 0; i < 2; i++) {
-		char cache_i[2];					// cache for integer calculation
-		adcval = ADC_read(i) - off_temp;	// subtract offset
-		if (adcval >= 0) buffer[0] = 43;	// adds '+' as 1st char
-		else buffer[0] = 45; 					// adds '-' as 1st char
-		if ( adcval > temp_hi && !(PINB & (1 << MOSI_FAN)) ) PORTB |= (1 << MOSI_FAN);	// switch on FAN
-		if ( adcval < temp_lo && (PINB & (1 << MOSI_FAN)) ) PORTB &= ~(1 << MOSI_FAN);	// switch off FAN
-		adcval = abs(10*adcval);			// change to abs value
-		if ( ((10 * (adcval % g_temp)) / g_temp) >= 5 ) adcval = (adcval / g_temp) + 1; // round up
-		else adcval = adcval / g_temp;
-		itoa(adcval, cache_i, 10); 			// converte integer part to string
-		if (adcval < 10) {
-			buffer[1] = 32; 				// insert space as 2nd char
-			buffer[2] = cache_i[0];			// put cache_i as 3rd char
+        int16_t adcval;
+        unsigned char buffer[4] = {'\0'};               		// string buffer for LCD
+        for (uint8_t i = 0; i < 2; i++) {
+        	char cache_i[2];                                        // cache for integer calculation
+                adcval = ADC_read(i);
+		if (i == 1) adcval -= 10;				// tweak sensor 1 and 2
+                if ( adcval > temp_hi && !(PINB & (1 << MOSI_FAN)) ) {
+			PORTB |= (1 << MOSI_FAN);  			// switch on FAN
 		}
-		else {								// value > 10
-			buffer[1] = cache_i[0];			// put cache_i[0] as 2nd char
-			buffer[2] = cache_i[1];			// put cache_i[1] as 3rd char
+                if ( adcval < temp_lo && (PINB & (1 << MOSI_FAN)) ) {
+			PORTB &= ~(1 << MOSI_FAN);  			// switch off FAN
 		}
-		buffer[3] = '\0';
-		if (i == 0) lcd_printlc(1, 1, buffer);	// print buffer left
-		else lcd_printlc(1, 13, buffer);		// print buffer right
-		clean(buffer);
-	}
+                if ( adcval <= 267 ) {
+			adcval = adcval - off_temp_l;        		// subtract offset
+			if (adcval >= 0) buffer[0] = 43;        	// adds '+' as 1st char
+			else buffer[0] = 45;				// adds '-' as 1st char
+			adcval = abs(10 * adcval);			// change to abs value and multiply by 10
+			if ( ((10 * (adcval % g_temp_l)) / g_temp_l) >= 5 ) {
+			adcval = (adcval / g_temp_l) + 1;		// round up
+			}
+			else adcval = adcval / g_temp_l;
+                }
+                else {
+			adcval = adcval + off_temp_h;        		// add offset
+			buffer[0] = 43;        				// adds '+' as 1st char
+			adcval = 10 * adcval;                        	// multiply by 10
+			if ( ((10 * (adcval % g_temp_h)) / g_temp_h) >= 5 ) {
+				adcval = (adcval / g_temp_h) + 1; 	// round up
+			}
+			else adcval = adcval / g_temp_h;
+		}
+                itoa(adcval, cache_i, 10);                      	// converte integer part to string
+                if (adcval < 10) {
+                        buffer[1] = 32;                                 // insert space as 2nd char
+                        buffer[2] = cache_i[0];                 	// put cache_i as 3rd char
+                }
+                else {							// value > 10
+                        buffer[1] = cache_i[0];                 	// put cache_i[0] as 2nd char
+                        buffer[2] = cache_i[1];                 	// put cache_i[1] as 3rd char
+                }
+                buffer[3] = '\0';
+                if (i == 0) lcd_printlc(1, 1, buffer);  		// print buffer left
+                else lcd_printlc(1, 13, buffer);                	// print buffer right
+                clean(buffer);
+        }
 }
 // Read voltage and print to LCD
 void print_vdd(void) {
