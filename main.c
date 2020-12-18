@@ -233,7 +233,7 @@ void print_temp(void) {
         for (uint8_t i = 0; i < 2; i++) {
         	char cache_i[2];                                        // cache for integer calculation
                 adcval = ADC_read(i);
-		if (i == 1) adcval -= 10;				// tweak sensor 1 and 2
+		if (i == 1) adcval -= 4;				// tweak sensor 1 and 2
                 if ( adcval > temp_hi && !(PINB & (1 << MOSI_FAN)) ) {
 			PORTB |= (1 << MOSI_FAN);  			// switch on FAN
 		}
