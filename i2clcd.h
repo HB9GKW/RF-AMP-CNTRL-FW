@@ -1,11 +1,11 @@
 /*****************************************************************************
  
  i2clcd.h - LCD over I2C library 
-		Designed for HD44870 based LCDs with I2C expander PCF8574X
-		on Atmels AVR MCUs
+        Designed for HD44870 based LCDs with I2C expander PCF8574X
+        on Atmels AVR MCUs
  
  Copyright (C) 2006 Nico Eichelmann and Thomas Eichelmann
-               2014 clean up by Falk Brunner
+            2014 clean up by Falk Brunner
  
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -29,8 +29,8 @@
 \mainpage
 
  \par i2clcd.h - LCD over I2C library
-	Designed for HD44870 based LCDs with I2C expander PCF8574X
-	on Atmels AVR MCUs
+    Designed for HD44870 based LCDs with I2C expander PCF8574X
+    on Atmels AVR MCUs
 
  \author Nico Eichelmann, Thomas Eichelmann, Falk Brunner
 
@@ -40,30 +40,30 @@
  \subpage LICENSE "GNU Lesser General Public License"
  
  \par Files:
-	\subpage I2CLCD.H \n
-	\subpage I2CLCD.C
+    \subpage I2CLCD.H \n
+    \subpage I2CLCD.C
 
  \note Requires I2C-Library from Peter Fleury http://jump.to/fleury
 
  \par Only testet with the following configuration:
-	2x16 Display (Displaytec 162), PCF8574P, ATmega8 @ 8 Mhz \n
-	4x20 Display (TC2004A-01T), PCF8574P, ATmega8 @ 8 Mhz \n
-	AVR-Studio 4.18, WinAVR20100110 (avr-gcc 4.3.3) \n
+    2x16 Display (Displaytec 162), PCF8574P, ATmega8 @ 8 Mhz \n
+    4x20 Display (TC2004A-01T), PCF8574P, ATmega8 @ 8 Mhz \n
+    AVR-Studio 4.18, WinAVR20100110 (avr-gcc 4.3.3) \n
 
  \par PIN-Assignment:
  \verbatim
  Pin assignment is completely free configurable, just set the defines for LCD_D0 ... accordingly
  Example assignment, working with 
- PCF8574	<->		LCD
+ PCF8574    <->        LCD
  ----------------------------------------------
- P0		<->		RS
- P1		<->		RW
- P2		<->		E
- P3		<->		LIGHT
- P4		<->		DB4
- P5		<->		DB5
- P6		<->		DB6
- P7		<->		DB7 \endverbatim
+ P0        <->        RS
+ P1        <->        RW
+ P2        <->        E
+ P3        <->        LIGHT
+ P4        <->        DB4
+ P5        <->        DB5
+ P6        <->        DB6
+ P7        <->        DB7 \endverbatim
  
  \par Example:
  \code
@@ -80,18 +80,18 @@ const char string_flash[] PROGMEM = "Hello Flash!";
 
 int main(void)
 {
-	char string1[] = "Hello World!";
+    char string1[] = "Hello World!";
 
-	i2c_init();
-	lcd_init();
+    i2c_init();
+    lcd_init();
 
     lcd_light(true);
-	lcd_print(string1);
-	lcd_nextline();
+    lcd_print(string1);
+    lcd_nextline();
     lcd_print_P(PSTR("I2CLCD V0.12"));
 
     // always set all three parameters  (OM/OFF) when using this command
-	lcd_command(LCD_DISPLAYON | LCD_CURSORON | LCD_BLINKINGON);
+    lcd_command(LCD_DISPLAYON | LCD_CURSORON | LCD_BLINKINGON);
     _delay_ms(1000);
 
     lcd_command(LCD_CLEAR);
@@ -99,8 +99,8 @@ int main(void)
     lcd_print_P(string_flash);
     lcd_printlc_P(2, 2, string_flash);
 
-    //-	Endless loop
-	
+    //-    Endless loop
+    
     while (1) {
     
     }
@@ -128,16 +128,16 @@ int main(void)
 */
 /*@{*/
 
-#define LCD_I2C_DEVICE			0x4E	    /**< Change this to the address of your port expander */
-#define LCD_LINES			2	        /**< Enter the number of lines of your display here */
-#define LCD_COLS			16	        /**< Enter the number of columns of your display here */
-#define LCD_LINE_MODE       		LCD_2LINE   /**< Enter line mode your display here */
-#define LCD_LIGHT_LOW_ACTIVE 		0          /**< Set to one, if low active */
+#define LCD_I2C_DEVICE            0x4E        /**< Change this to the address of your port expander */
+#define LCD_LINES            2           /**< Enter the number of lines of your display here */
+#define LCD_COLS            16           /**< Enter the number of columns of your display here */
+#define LCD_LINE_MODE              LCD_2LINE   /**< Enter line mode your display here */
+#define LCD_LIGHT_LOW_ACTIVE         0        /**< Set to one, if low active */
 
-#define LCD_LINE1			0x00	    /**< This should be 0x00 on all displays */
-#define LCD_LINE2			0x40	    /**< Change this to the address for line 2 on your display */
-#define LCD_LINE3			0x14	    /**< Change this to the address for line 3 on your display */
-#define LCD_LINE4			0x54	    /**< Change this to the address for line 4 on your display */
+#define LCD_LINE1            0x00        /**< This should be 0x00 on all displays */
+#define LCD_LINE2            0x40        /**< Change this to the address for line 2 on your display */
+#define LCD_LINE3            0x14        /**< Change this to the address for line 3 on your display */
+#define LCD_LINE4            0x54        /**< Change this to the address for line 4 on your display */
 
 /*@}*/
 
@@ -159,14 +159,14 @@ int main(void)
  Set the definition to match your hardware setup. Any assignment is possible, but avoid mapping of two signal to one pin!
 */
 /*@{*/
-#define LCD_D4_PIN			4	/**< LCD-Pin D4 is connected to P4 on the PCF8574 */
-#define LCD_D5_PIN			5	/**< LCD-Pin D5 is connected to P5 on the PCF8574 */
-#define LCD_D6_PIN			6	/**< LCD-Pin D6 is connected to P6 on the PCF8574 */
-#define LCD_D7_PIN			7	/**< LCD-Pin D7 is connected to P7 on the PCF8574 */
-#define LCD_RS_PIN			0	/**< LCD-Pin RS is connected to P0 on the PCF8574 */
-#define LCD_RW_PIN			1	/**< LCD-Pin RW is connected to P1 on the PCF8574 */
-#define LCD_E_PIN			2	/**< LCD-Pin E is connected to P2 on the PCF8574 */
-#define LCD_LIGHT_PIN	    		3	/**< LCD backlight is connected to P3 on the PCF8574 */
+#define LCD_D4_PIN            4    /**< LCD-Pin D4 is connected to P4 on the PCF8574 */
+#define LCD_D5_PIN            5    /**< LCD-Pin D5 is connected to P5 on the PCF8574 */
+#define LCD_D6_PIN            6    /**< LCD-Pin D6 is connected to P6 on the PCF8574 */
+#define LCD_D7_PIN            7    /**< LCD-Pin D7 is connected to P7 on the PCF8574 */
+#define LCD_RS_PIN            0    /**< LCD-Pin RS is connected to P0 on the PCF8574 */
+#define LCD_RW_PIN            1    /**< LCD-Pin RW is connected to P1 on the PCF8574 */
+#define LCD_E_PIN            2    /**< LCD-Pin E is connected to P2 on the PCF8574 */
+#define LCD_LIGHT_PIN                3    /**< LCD backlight is connected to P3 on the PCF8574 */
 /*@}*/
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -177,32 +177,32 @@ int main(void)
 */
 /*@{*/
 
-#define LCD_D4				(1 << LCD_D4_PIN)	/**< bit 4 in 2nd lower nibble */
-#define LCD_D5				(1 << LCD_D5_PIN)	/**< bit 5 in 2nd lower nibble */
-#define LCD_D6				(1 << LCD_D6_PIN)	/**< bit 6 in 2nd lower nibble */
-#define LCD_D7				(1 << LCD_D7_PIN)	/**< bit 7 in 2nd lower nibble */
+#define LCD_D4                (1 << LCD_D4_PIN)    /**< bit 4 in 2nd lower nibble */
+#define LCD_D5                (1 << LCD_D5_PIN)    /**< bit 5 in 2nd lower nibble */
+#define LCD_D6                (1 << LCD_D6_PIN)    /**< bit 6 in 2nd lower nibble */
+#define LCD_D7                (1 << LCD_D7_PIN)    /**< bit 7 in 2nd lower nibble */
 
-#define LCD_RS				(1 << LCD_RS_PIN)	/**< RS-bit in 1st and 2nd higher nibble */
-#define LCD_RW				(1 << LCD_RW_PIN)	/**< RW-bit in 1st and 2nd higher nibble */
-#define LCD_LIGHT			(1 << LCD_LIGHT_PIN)/**< LCD backlight control */
-#define LCD_E				(1 << LCD_E_PIN)	/**< E-bit in 1st and 2nd higher nibble */
+#define LCD_RS                (1 << LCD_RS_PIN)    /**< RS-bit in 1st and 2nd higher nibble */
+#define LCD_RW                (1 << LCD_RW_PIN)    /**< RW-bit in 1st and 2nd higher nibble */
+#define LCD_LIGHT            (1 << LCD_LIGHT_PIN)/**< LCD backlight control */
+#define LCD_E                (1 << LCD_E_PIN)    /**< E-bit in 1st and 2nd higher nibble */
 
 /*@}*/
 
 // data & control bits for internal use, do not change!
 
-#define CMD_D0				(1 << 0)	/**< bit 0 in lower nibble */
-#define CMD_D1				(1 << 1)	/**< bit 1 in lower nibble */
-#define CMD_D2				(1 << 2)	/**< bit 2 in lower nibble */
-#define CMD_D3				(1 << 3)	/**< bit 3 in lower nibble */
-#define CMD_RS				(1 << 4)	/**< RS-bit */
-#define CMD_RW				(1 << 5)	/**< RW-bit */
+#define CMD_D0                (1 << 0)    /**< bit 0 in lower nibble */
+#define CMD_D1                (1 << 1)    /**< bit 1 in lower nibble */
+#define CMD_D2                (1 << 2)    /**< bit 2 in lower nibble */
+#define CMD_D3                (1 << 3)    /**< bit 3 in lower nibble */
+#define CMD_RS                (1 << 4)    /**< RS-bit */
+#define CMD_RW                (1 << 5)    /**< RW-bit */
 
 /** \defgroup DEFINED_READ_MODES DEFINED READ MODES
 */
 /*@{*/
-#define LCD_ADDRESS			0	/**< Used for reading the address-counter and busy-flag */
-#define LCD_DATA			1	/**< Used for reading data */
+#define LCD_ADDRESS            0    /**< Used for reading the address-counter and busy-flag */
+#define LCD_DATA            1    /**< Used for reading data */
 /*@}*/
 
 //-LCD-COMMANDS------------------------------------------------------------------------------------------------------
@@ -220,52 +220,52 @@ int main(void)
 
 /** @name GENERAL COMMANDS */
 /*@{*/ 
-	#define LCD_CLEAR		0x01	/**< Clear screen */
-	#define LCD_HOME		0x02	/**< Cursor move to first digit */
-	#define LCD_DEF_CHAR 	    	0x40	/**< Define a user char */
+    #define LCD_CLEAR        0x01    /**< Clear screen */
+    #define LCD_HOME        0x02    /**< Cursor move to first digit */
+    #define LCD_DEF_CHAR            0x40    /**< Define a user char */
 /*@}*/ 
 
 /** @name ENTRYMODES */
 /*@{*/ 
-	#define LCD_ENTRYMODE		0x04			/**< Set entrymode */
-	#define LCD_INCREASE		LCD_ENTRYMODE | 0x02	/**<	Set cursor move direction -- Increase */
-	#define LCD_DECREASE		LCD_ENTRYMODE | 0x00	/**<	Set cursor move direction -- Decrease */
-	#define LCD_DISPLAYSHIFTON	LCD_ENTRYMODE | 0x01	/**<	Display is shifted */
-	#define LCD_DISPLAYSHIFTOFF	LCD_ENTRYMODE | 0x00	/**<	Display is not shifted */
+    #define LCD_ENTRYMODE        0x04            /**< Set entrymode */
+    #define LCD_INCREASE        LCD_ENTRYMODE | 0x02    /**<    Set cursor move direction -- Increase */
+    #define LCD_DECREASE        LCD_ENTRYMODE | 0x00    /**<    Set cursor move direction -- Decrease */
+    #define LCD_DISPLAYSHIFTON    LCD_ENTRYMODE | 0x01    /**<    Display is shifted */
+    #define LCD_DISPLAYSHIFTOFF    LCD_ENTRYMODE | 0x00    /**<    Display is not shifted */
 /*@}*/ 
 
 /** @name DISPLAYMODES */
 /*@{*/ 
-	#define LCD_DISPLAYMODE		0x08			/**< Set displaymode */
-	#define LCD_DISPLAYON		LCD_DISPLAYMODE | 0x04	/**<	Display on */
-	#define LCD_DISPLAYOFF		LCD_DISPLAYMODE | 0x00	/**<	Display off */
-	#define LCD_CURSORON		LCD_DISPLAYMODE | 0x02	/**<	Cursor on */
-	#define LCD_CURSOROFF		LCD_DISPLAYMODE | 0x00	/**<	Cursor off */
-	#define LCD_BLINKINGON		LCD_DISPLAYMODE | 0x01	/**<	Blinking on */
-	#define LCD_BLINKINGOFF		LCD_DISPLAYMODE | 0x00	/**<	Blinking off */
+    #define LCD_DISPLAYMODE        0x08            /**< Set displaymode */
+    #define LCD_DISPLAYON        LCD_DISPLAYMODE | 0x04    /**<    Display on */
+    #define LCD_DISPLAYOFF        LCD_DISPLAYMODE | 0x00    /**<    Display off */
+    #define LCD_CURSORON        LCD_DISPLAYMODE | 0x02    /**<    Cursor on */
+    #define LCD_CURSOROFF        LCD_DISPLAYMODE | 0x00    /**<    Cursor off */
+    #define LCD_BLINKINGON        LCD_DISPLAYMODE | 0x01    /**<    Blinking on */
+    #define LCD_BLINKINGOFF        LCD_DISPLAYMODE | 0x00    /**<    Blinking off */
 /*@}*/ 
 
 /** @name SHIFTMODES */
 /*@{*/ 
-	#define LCD_SHIFTMODE		0x10			/**< Set shiftmode */
-	#define LCD_DISPLAYSHIFT	LCD_SHIFTMODE | 0x08	/**<	Display shift */
-	#define LCD_CURSORMOVE		LCD_SHIFTMODE | 0x00	/**<	Cursor move */
-	#define LCD_RIGHT		LCD_SHIFTMODE | 0x04	/**<	Right shift */
-	#define LCD_LEFT		LCD_SHIFTMODE | 0x00	/**<	Left shift */
+    #define LCD_SHIFTMODE        0x10            /**< Set shiftmode */
+    #define LCD_DISPLAYSHIFT    LCD_SHIFTMODE | 0x08    /**<    Display shift */
+    #define LCD_CURSORMOVE        LCD_SHIFTMODE | 0x00    /**<    Cursor move */
+    #define LCD_RIGHT        LCD_SHIFTMODE | 0x04    /**<    Right shift */
+    #define LCD_LEFT        LCD_SHIFTMODE | 0x00    /**<    Left shift */
 /*@}*/ 
 
 /** @name DISPLAY_CONFIGURATION */
 /*@{*/ 
-	#define LCD_CONFIGURATION	0x20				/**< Set function */
-	#define LCD_8BIT		LCD_CONFIGURATION | 0x10	/**<	8 bits interface */
-	#define LCD_4BIT		LCD_CONFIGURATION | 0x00	/**<	4 bits interface */
-	#define LCD_2LINE		LCD_CONFIGURATION | 0x08	/**<	2 line display */
-	#define LCD_1LINE		LCD_CONFIGURATION | 0x00	/**<	1 line display */
-	#define LCD_5X10		LCD_CONFIGURATION | 0x04	/**<	5 X 10 dots */
-	#define LCD_5X7			LCD_CONFIGURATION | 0x00	/**<	5 X 7 dots */
+    #define LCD_CONFIGURATION    0x20                /**< Set function */
+    #define LCD_8BIT        LCD_CONFIGURATION | 0x10    /**<    8 bits interface */
+    #define LCD_4BIT        LCD_CONFIGURATION | 0x00    /**<    4 bits interface */
+    #define LCD_2LINE        LCD_CONFIGURATION | 0x08    /**<    2 line display */
+    #define LCD_1LINE        LCD_CONFIGURATION | 0x00    /**<    1 line display */
+    #define LCD_5X10        LCD_CONFIGURATION | 0x04    /**<    5 X 10 dots */
+    #define LCD_5X7            LCD_CONFIGURATION | 0x00    /**<    5 X 7 dots */
 
-	#define LCD_LIGHT_OFF		0
-	#define LCD_LIGHT_ON		LCD_LIGHT
+    #define LCD_LIGHT_OFF        0
+    #define LCD_LIGHT_ON        LCD_LIGHT
 /*@}*/ 
 
 //-------------------------------------------------------------------------------------------------------------------

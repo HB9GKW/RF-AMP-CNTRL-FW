@@ -2,9 +2,9 @@
 #define _I2CMASTER_H   1
 /************************************************************************* 
 * Title:    C include file for the I2C master interface 
-*           (i2cmaster.S or twimaster.c)
+*         (i2cmaster.S or twimaster.c)
 * Author:   Peter Fleury <pfleury@gmx.ch>  http://jump.to/fleury
-* File:     $Id: i2cmaster.h,v 1.10 2005/03/06 22:39:57 Peter Exp $
+* File:    $Id: i2cmaster.h,v 1.10 2005/03/06 22:39:57 Peter Exp $
 * Software: AVR-GCC 3.4.3 / avr-libc 1.2.3
 * Target:   any AVR device
 * Usage:    see Doxygen manual
@@ -48,31 +48,31 @@
  #include <i2cmaster.h>
 
 
- #define Dev24C02  0xA2      // device address of EEPROM 24C02, see datasheet
+ #define Dev24C02  0xA2     // device address of EEPROM 24C02, see datasheet
 
  int main(void)
  {
-     unsigned char ret;
+    unsigned char ret;
 
-     i2c_init();                             // initialize I2C library
+    i2c_init();                        // initialize I2C library
 
-     // write 0x75 to EEPROM address 5 (Byte Write) 
-     i2c_start_wait(Dev24C02+I2C_WRITE);     // set device address and write mode
-     i2c_write(0x05);                        // write address = 5
-     i2c_write(0x75);                        // write value 0x75 to EEPROM
-     i2c_stop();                             // set stop conditon = release bus
+    // write 0x75 to EEPROM address 5 (Byte Write) 
+    i2c_start_wait(Dev24C02+I2C_WRITE);    // set device address and write mode
+    i2c_write(0x05);                    // write address = 5
+    i2c_write(0x75);                    // write value 0x75 to EEPROM
+    i2c_stop();                        // set stop conditon = release bus
 
 
-     // read previously written value back from EEPROM address 5 
-     i2c_start_wait(Dev24C02+I2C_WRITE);     // set device address and write mode
+    // read previously written value back from EEPROM address 5 
+    i2c_start_wait(Dev24C02+I2C_WRITE);    // set device address and write mode
 
-     i2c_write(0x05);                        // write address = 5
-     i2c_rep_start(Dev24C02+I2C_READ);       // set device address and read mode
+    i2c_write(0x05);                    // write address = 5
+    i2c_rep_start(Dev24C02+I2C_READ);      // set device address and read mode
 
-     ret = i2c_readNak();                    // read one byte from EEPROM
-     i2c_stop();
+    ret = i2c_readNak();                // read one byte from EEPROM
+    i2c_stop();
 
-     for(;;);
+    for(;;);
  }
  @endcode
 
@@ -167,7 +167,7 @@ extern unsigned char i2c_readNak(void);
  Implemented as a macro, which calls either i2c_readAck or i2c_readNak
  
  @param    ack 1 send ack, request more data from device<br>
-               0 send nak, read is followed by a stop condition 
+            0 send nak, read is followed by a stop condition 
  @return   byte read from I2C device
  */
 extern unsigned char i2c_read(unsigned char ack);

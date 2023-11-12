@@ -3,63 +3,63 @@
  */
 
 // Signal mapping for port D
-#define RF_SW1_ON 		PD0
-#define RF_SW2_ON 		PD1
-#define ILK 			PD2
-#define PTT 			PD3
-#define GATE_ALC_EN 	PD4
-#define VDD_EN 			PD5
-#define RF_SW1_EN 		PD6
-#define RF_SW2_EN 		PD7
+#define RF_SW1_ON       PD0
+#define RF_SW2_ON       PD1
+#define ILK             PD2
+#define PTT             PD3
+#define GATE_ALC_EN     PD4
+#define VDD_EN          PD5
+#define RF_SW1_EN       PD6
+#define RF_SW2_EN       PD7
 
 // Signal mapping for port B
-#define OPR 			PB0
-#define RESET_ILK 		PB1
-#define DISPLAY 		PB2
-#define MOSI_FAN 		PB3
+#define OPR             PB0
+#define RESET_ILK       PB1
+#define DISPLAY         PB2
+#define MOSI_FAN        PB3
 #define MISO_RF_INHIBIT PB4
-#define SCK_SOFT_ILK 	PB5
-#define ON_AIR 			PB6
-#define FAULT 			PB7
+#define SCK_SOFT_ILK    PB5
+#define ON_AIR          PB6
+#define FAULT           PB7
 
 // Signal mapping for port C
-#define TEMP1_MON 		PC0
-#define TEMP2_MON 		PC1
-#define VDD_MON 		PC2
-#define IDD_MON 		PC3
-#define FWD_MON 		ADC6
-#define REF_MON 		ADC7
+#define TEMP1_MON       PC0
+#define TEMP2_MON       PC1
+#define VDD_MON         PC2
+#define IDD_MON         PC3
+#define FWD_MON         ADC6
+#define REF_MON         ADC7
 
 // Signal mapping for ILK port
-#define ILK_HSWR1		0b11111110
-#define ILK_HSWR2		0b11111101
-#define ILK_HSWR3		0b11111011
-#define ILK_HSWR4		0b11110111
-#define ILK_RF_OL		0b11101111
-#define ILK_IDD_OL		0b11011111
-#define ILK_TEMP1		0b10111111
-#define ILK_TEMP2		0b01111111
+#define ILK_HSWR1       0b11111110
+#define ILK_HSWR2       0b11111101
+#define ILK_HSWR3       0b11111011
+#define ILK_HSWR4       0b11110111
+#define ILK_RF_OL       0b11101111
+#define ILK_IDD_OL      0b11011111
+#define ILK_TEMP1       0b10111111
+#define ILK_TEMP2       0b01111111
 
 // Signal settings
 // Offset
-#define off_temp_l		77
-#define off_temp_h		15
-#define off_vdd			0
-#define off_idd			0
+#define OFF_TEMP_LO     77
+#define OFF_TEMP_HI     15
+#define OFF_VDD         0
+#define OFF_IDD         0
 // Gain
-#define g_temp_l		83
-#define g_temp_h 		123
-#define g_vdd			1017
-#define g_idd			98
+#define G_TEMP_L        83
+#define G_TEMP_H        123
+#define G_VDD           1017
+#define G_IDD           98
 // Fan threshold
-#define temp_hi			420
-#define temp_lo			300
+#define TEMP_HI         420
+#define TEMP_LO         300
 // Bargraph grid
-#define bar_f			4014	// bar_f = 2^16 / 16 x g_idd/100
-#define bar_1			803	// bar_1 = bar_f * 1 / 5
-#define bar_2			1606	// bar_2 = bar_f * 2 / 5
-#define bar_3			2408	// bar_2 = bar_f * 3 / 5
-#define bar_4			3211	// bar_2 = bar_f * 4 / 5
+#define BAR_F           4014    // bar_f = 2^16 / 16 x g_idd/100
+#define BAR_1           803     // bar_1 = bar_f * 1 / 5
+#define BAR_2           1606    // bar_2 = bar_f * 2 / 5
+#define BAR_3           2408    // bar_2 = bar_f * 3 / 5
+#define BAR_4           3211    // bar_2 = bar_f * 4 / 5
 
 // Define Display Strings and Characters in PROGMEM
 const char string_flash1[] PROGMEM = "RF-AMP-CNTRL_V1";
