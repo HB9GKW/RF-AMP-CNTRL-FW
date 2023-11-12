@@ -47,8 +47,8 @@
 #define OFF_VDD         0
 #define OFF_IDD         0
 // Gain
-#define G_TEMP_L        83
-#define G_TEMP_H        123
+#define G_TEMP_LO       83
+#define G_TEMP_HI       123
 #define G_VDD           1017
 #define G_IDD           98
 // Fan threshold

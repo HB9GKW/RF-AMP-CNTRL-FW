@@ -245,19 +245,19 @@ void print_temp(void) {
             if (adcval >= 0) buffer[0] = 43;        // adds '+' as 1st char
             else buffer[0] = 45;                    // adds '-' as 1st char
             adcval = abs(10 * adcval);              // change to abs value and multiply by 10
-            if ( ((10 * (adcval % G_TEMP_L)) / G_TEMP_L) >= 5 ) {
-                adcval = (adcval / G_TEMP_L) + 1;   // round up
+            if ( ((10 * (adcval % G_TEMP_LO)) / G_TEMP_LO) >= 5 ) {
+                adcval = (adcval / G_TEMP_LO) + 1;  // round up
             }
-            else adcval = adcval / G_TEMP_L;
+            else adcval = adcval / G_TEMP_LO;
         }
         else {
             adcval = adcval + OFF_TEMP_HI;          // add offset
             buffer[0] = 43;                         // adds '+' as 1st char
             adcval = 10 * adcval;                   // multiply by 10
-            if ( ((10 * (adcval % G_TEMP_H)) / G_TEMP_H) >= 5 ) {
-                adcval = (adcval / G_TEMP_H) + 1;   // round up
+            if ( ((10 * (adcval % G_TEMP_HI)) / G_TEMP_HI) >= 5 ) {
+                adcval = (adcval / G_TEMP_HI) + 1;  // round up
             }
-            else adcval = adcval / G_TEMP_H;
+            else adcval = adcval / G_TEMP_HI;
         }
         itoa(adcval, cache_i, 10);                  // converte integer part to string
         if (adcval < 10) {
