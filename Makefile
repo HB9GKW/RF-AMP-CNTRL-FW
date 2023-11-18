@@ -82,7 +82,7 @@ LDFLAGS = $(EXTMEMOPTS) $(LDMAP) $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 # Programming support using avrdude. Settings and variables.
 
-AVRDUDE_PROGRAMMER = linuxgpio
+AVRDUDE_PROGRAMMER = ft232r_mod2
 AVRDUDE_PORT =
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
@@ -103,7 +103,7 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
 
-AVRDUDE_BASIC = -p $(MCU) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_BASIC = -p $(MCU) -c $(AVRDUDE_PROGRAMMER) -P usb:ft0 -b 115200
 AVRDUDE_FLAGS = $(AVRDUDE_BASIC) $(AVRDUDE_NO_VERIFY) $(AVRDUDE_VERBOSE) $(AVRDUDE_ERASE_COUNTER)
 
 

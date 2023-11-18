@@ -233,32 +233,21 @@ void print_temp(void) {
     for (uint8_t i = 0; i < 2; i++) {
         char cache_i[2];                            // cache for integer calculation
         adcval = ADC_read(i);
-        if (i == 1) adcval -= 4;                    // tweak sensor 1 and 2
+        if (i == 0) adcval = adcval - OFF_TEMP_AMP1;// subtract temp offset
+        else adcval = adcval - OFF_TEMP_AMP2;
         if ( adcval > TEMP_HI && !(PINB & (1 << MOSI_FAN)) ) {
             PORTB |= (1 << MOSI_FAN);               // switch on FAN
         }
         if ( adcval < TEMP_LO && (PINB & (1 << MOSI_FAN)) ) {
             PORTB &= ~(1 << MOSI_FAN);              // switch off FAN
         }
-        if ( adcval <= 267 ) {
-            adcval = adcval - OFF_TEMP_LO;          // subtract offset
-            if (adcval >= 0) buffer[0] = 43;        // adds '+' as 1st char
-            else buffer[0] = 45;                    // adds '-' as 1st char
-            adcval = abs(10 * adcval);              // change to abs value and multiply by 10
-            if ( ((10 * (adcval % G_TEMP_LO)) / G_TEMP_LO) >= 5 ) {
-                adcval = (adcval / G_TEMP_LO) + 1;  // round up
-            }
-            else adcval = adcval / G_TEMP_LO;
+        if (adcval >= 0) buffer[0] = 43;            // adds '+' as 1st char
+        else buffer[0] = 45;                        // adds '-' as 1st char
+        adcval = abs(10 * adcval);                  // change to abs value and multiply by 10
+        if ( ((10 * (adcval % G_TEMP)) / G_TEMP) >= 5 ) {
+            adcval = (adcval / G_TEMP) + 1;         // round up
         }
-        else {
-            adcval = adcval + OFF_TEMP_HI;          // add offset
-            buffer[0] = 43;                         // adds '+' as 1st char
-            adcval = 10 * adcval;                   // multiply by 10
-            if ( ((10 * (adcval % G_TEMP_HI)) / G_TEMP_HI) >= 5 ) {
-                adcval = (adcval / G_TEMP_HI) + 1;  // round up
-            }
-            else adcval = adcval / G_TEMP_HI;
-        }
+        else adcval = adcval / G_TEMP;
         itoa(adcval, cache_i, 10);                  // converte integer part to string
         if (adcval < 10) {
             buffer[1] = 32;                         // insert space as 2nd char
