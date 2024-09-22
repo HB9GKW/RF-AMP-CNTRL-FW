@@ -229,8 +229,9 @@ void read_display_button(uint8_t *dm, uint8_t *disp) {
 // Read temperature and print to LCD
 void print_temp(void) {
     int16_t adcval;
+    uint8_t temp_flag = 0;
     unsigned char buffer[4] = {'\0'};               // string buffer for LCD
-    for (uint8_t i = 0; i < 2; i++) {
+    for (uint8_t i = 0; i <= 1; i++) {
         char cache_i[2];                            // cache for integer calculation
         adcval = ADC_read(i);
         if (i == 0) adcval = adcval - OFF_TEMP_AMP1;// subtract temp offset
@@ -239,7 +240,7 @@ void print_temp(void) {
             PORTB |= (1 << MOSI_FAN);               // switch on FAN
         }
         if ( adcval < TEMP_LO && (PINB & (1 << MOSI_FAN)) ) {
-            PORTB &= ~(1 << MOSI_FAN);              // switch off FAN
+            temp_flag += 1;                          // release FAN
         }
         if (adcval >= 0) buffer[0] = 43;            // adds '+' as 1st char
         else buffer[0] = 45;                        // adds '-' as 1st char
@@ -261,7 +262,10 @@ void print_temp(void) {
         if (i == 0) lcd_printlc(1, 1, buffer);      // print buffer left
         else lcd_printlc(1, 13, buffer);            // print buffer right
         clean(buffer);
-       }
+    }
+    if ( temp_flag > 1 ) {
+        PORTB &= ~(1 << MOSI_FAN);                  // switch off FAN
+    }
 }
 // Read voltage and print to LCD
 void print_vdd(void) {
@@ -292,7 +296,10 @@ void print_idd(void) {
     uint16_t adcval;
     unsigned char buffer[17] = {'\0'};
     uint8_t zero_flag = 0;
-    adcval = ( (ADC_read(3) - OFF_IDD) << 6);
+    adcval = ADC_read(3) << 6;
+    if (adcval <= OFF_IDD) adcval = 0;
+    else adcval -= OFF_IDD;
+    adcval /= G_IDD;
     for (uint8_t i = 0; i <= 15; i++) {
         if (zero_flag == 1) buffer[i] = 254;
         else if ( adcval >= BAR_F * (1 + i) ) buffer[i] = 255;

@@ -45,17 +45,17 @@
  * 4V / 1024 = 3.9mV / bit
  */
 // Offset
-#define OFF_TEMP_AMP1   311     // 1.61V @ 20degC
-#define OFF_TEMP_AMP2   294     // 1.55V @ 20degC
+#define OFF_TEMP_AMP1   294     // 1.55V @ 20degC
+#define OFF_TEMP_AMP2   317     // 1.61V @ 20degC
 #define OFF_VDD         0
 #define OFF_IDD         0
 // Gain
 #define G_TEMP          51      // +20mV / degC
 #define G_VDD           1017
-#define G_IDD           98
+#define G_IDD           1
 // Fan threshold
-#define TEMP_HI         256     // 50degC x 5.12bit/degC
-#define TEMP_LO         205     // 40degC x 5.12bit/degC
+#define TEMP_HI         205     // 40degC x 5.12bit/degC
+#define TEMP_LO         180     // 35degC x 5.12bit/degC
 // Bargraph grid
 #define BAR_F           4014    // bar_f = 2^16 / 16 x g_idd/100
 #define BAR_1           803     // bar_1 = bar_f * 1 / 5
